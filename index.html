@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTLA Walking Tour</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+</head>
+<body>
+    <!-- Permission Overlay -->
+    <div id="permissionOverlay" class="overlay">
+        <div class="overlay-content">
+            <h2>Enable Motion Controls</h2>
+            <p>To experience the 360° tour, please enable motion controls.</p>
+            <button id="enableMotionBtn">Enable 360° Experience</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content">
+        <!-- Unified Player Container -->
+        <div id="playerContainer" class="player-container">
+            <div class="player-header">
+                <h1 id="playlistName">Ni de Aquí, ni de Allá</h1>
+            </div>
+            
+            <div class="player-content">
+                <!-- Content Area - Switches between audio and XR -->
+                <div id="contentArea">
+                    <!-- Audio Content -->
+                    <div id="audioContent" class="content-section">
+                        <div class="album-art">
+                            <img id="albumArt" src="https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-1.jpg" alt="Album Art">
+                        </div>
+                        <div class="track-info">
+                            <h2 id="trackTitle">La Placita Raid</h2>
+                            <p id="trackArtist">Chapter 1</p>
+                        </div>
+                    </div>
+                    
+                    <!-- XR Content -->
+                    <div id="xrContent" class="content-section" style="display: none;">
+                        <iframe id="videoFrame" class="video-frame" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <!-- Unified Controls -->
+                <div class="player-controls">
+                    <button id="playPauseBtn" class="control-btn">
+                        <span class="play-icon">▶</span>
+                    </button>
+                    <div class="progress-container">
+                        <span id="currentTime">0:00</span>
+                        <div class="progress-bar">
+                            <div id="progress" class="progress"></div>
+                        </div>
+                        <span id="duration">1:15</span>
+                    </div>
+                    <div class="volume-control">
+                        <button id="muteBtn" class="control-btn">🔊</button>
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                    </div>
+                </div>
+
+                <!-- Mode Switch -->
+                <div class="mode-switch">
+                    <button id="viewXRBtn" class="control-btn">View 360°</button>
+                    <button id="exitXRBtn" class="control-btn" style="display: none;">Exit 360°</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playlist -->
+        <div id="playlistContainer" class="playlist-container">
+            <div class="playlist-header">
+                <h2>Chapters</h2>
+                <button id="playlistClose" class="close-btn">×</button>
+            </div>
+            <div id="playlistTracks" class="playlist-tracks"></div>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="audioElement" crossorigin="anonymous" preload="auto" playsinline>
+        <source src="https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
