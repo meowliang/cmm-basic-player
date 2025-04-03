@@ -63,17 +63,21 @@ function initializePlayer() {
 }
 
 function handleIframeMessages(event) {
+    console.log('Parent received:', event.data);
     if (event.data.type === 'videoReady') {
-        // When video is ready, sync with current audio time
         postMessageToIframe({
             action: 'setTime',
             time: elements.audioElement.currentTime
         });
-        
-        // If audio was playing, start video
         if (state.isPlaying) {
-            postMessageToIframe({ action: 'play' });
+            postMessageToIframe({ 
+                action: 'play',
+                time: elements.audioElement.currentTime
+            });
         }
+    } else if (event.data.type === 'currentTime') {
+        // This handles the exitXRMode response
+        completeExitXRMode(event.data.time);
     }
 }
 
@@ -178,48 +182,24 @@ function enterXRMode() {
 }
 
 function exitXRMode() {
-    // Get current time from video before switching
+    console.log('Attempting to exit XR mode');
     postMessageToIframe({ action: 'getCurrentTime' });
-    
-    const handleTimeResponse = (event) => {
-        if (event.data.type === 'currentTime') {
-            window.removeEventListener('message', handleTimeResponse);
-            
-            // Set audio to video's current time
-            elements.audioElement.currentTime = event.data.time;
-            
-            // Switch back to audio mode
-            state.isXRMode = false;
-            elements.audioContent.style.display = 'flex';
-            elements.xrContent.style.display = 'none';
-            elements.viewXRBtn.style.display = 'block';
-            elements.exitXRBtn.style.display = 'none';
-            
-            // Resume playback if needed
-            if (state.isPlaying) {
-                elements.audioElement.play().catch(console.error);
-            }
-        }
-    };
-    
-    window.addEventListener('message', handleTimeResponse);
 }
 
-
 function completeExitXRMode(videoTime) {
-    // Switch back to audio mode
+    console.log('Completing exit with time:', videoTime);
     state.isXRMode = false;
     elements.audioContent.style.display = 'flex';
     elements.xrContent.style.display = 'none';
     elements.viewXRBtn.style.display = 'block';
     elements.exitXRBtn.style.display = 'none';
     
-    // Set audio to video's time and play if video was playing
     elements.audioElement.currentTime = videoTime;
     if (state.isPlaying) {
         elements.audioElement.play().catch(console.error);
     }
 }
+
 
 function setupXRScene(videoUrl) {
     const iframe = elements.videoFrame;
@@ -245,13 +225,14 @@ function setupXRScene(videoUrl) {
                 
                 <script>
                     const video = document.getElementById('xrVideo');
-                    video.muted = true; // Ensure video is muted
+                    video.muted = true;
                     
                     // Handle parent messages
                     window.addEventListener('message', (event) => {
+                        console.log('iframe received:', event.data);
                         switch(event.data.action) {
                             case 'play':
-                                video.currentTime = ${elements.audioElement.currentTime};
+                                video.currentTime = event.data.time || ${elements.audioElement.currentTime};
                                 video.play().catch(e => console.log(e));
                                 break;
                             case 'pause':
@@ -260,7 +241,18 @@ function setupXRScene(videoUrl) {
                             case 'setTime':
                                 video.currentTime = event.data.time;
                                 break;
+                            case 'getCurrentTime':
+                                window.parent.postMessage({
+                                    type: 'currentTime',
+                                    time: video.currentTime
+                                }, '*');
+                                break;
                         }
+                    });
+                    
+                    // Notify parent when ready
+                    video.addEventListener('canplay', () => {
+                        window.parent.postMessage({ type: 'videoReady' }, '*');
                     });
                 </script>
             </a-scene>
@@ -272,12 +264,18 @@ function setupXRScene(videoUrl) {
 }
 
 function postMessageToIframe(message) {
-    try {
-        if (elements.videoFrame.contentWindow) {
-            elements.videoFrame.contentWindow.postMessage(message, '*');
+    console.log('Posting to iframe:', message);
+    const iframe = elements.videoFrame;
+    if (iframe.contentWindow) {
+        try {
+            iframe.contentWindow.postMessage(message, '*');
+        } catch (e) {
+            console.error('PostMessage error:', e);
         }
-    } catch (error) {
-        console.error('Iframe communication error:', error);
+    } else {
+        console.warn('Iframe contentWindow not available yet');
+        // Retry after short delay if needed
+        setTimeout(() => postMessageToIframe(message), 100);
     }
 }
 
