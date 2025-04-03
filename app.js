@@ -57,6 +57,24 @@ function initializePlayer() {
     populatePlaylist();
     setupAudioElement();
     checkDeviceOrientation();
+    
+    // Add message listener for iframe communication
+    window.addEventListener('message', handleIframeMessages);
+}
+
+function handleIframeMessages(event) {
+    if (event.data.type === 'videoReady') {
+        // When video is ready, sync with current audio time
+        postMessageToIframe({
+            action: 'setTime',
+            time: elements.audioElement.currentTime
+        });
+        
+        // If audio was playing, start video
+        if (state.isPlaying) {
+            postMessageToIframe({ action: 'play' });
+        }
+    }
 }
 
 // Setup event listeners
@@ -107,42 +125,7 @@ function setupAudioElement() {
     });
 }
 
-// Play/Pause functionality
-function togglePlayPause() {
-    const xrContent = document.getElementById('xrContent');
-    const videoFrame = document.getElementById('videoFrame');
-    const iframeDoc = videoFrame.contentDocument || videoFrame.contentWindow.document;
-    const video = iframeDoc.getElementById('xrVideo');
-    
-    if (xrContent.style.display === 'block' && video) {
-        // In XR mode
-        if (video.paused) {
-            video.play();
-        } else {
-            video.pause();
-        }
-    } else {
-        // In audio mode
-        if (elements.audioElement.paused) {
-            elements.audioElement.play().then(() => {
-                if (state.videoElement) {
-                    state.videoElement.play().catch(error => {
-                        console.error('Error playing video:', error);
-                    });
-                }
-            }).catch(error => {
-                console.error('Error playing audio:', error);
-            });
-        } else {
-            elements.audioElement.pause();
-            if (state.videoElement) {
-                state.videoElement.pause();
-            }
-        }
-    }
-    state.isPlaying = !state.isPlaying;
-    updatePlayPauseButton();
-}
+
 
 // Volume control
 function toggleMute() {
@@ -164,122 +147,175 @@ function handleVolumeChange(e) {
     elements.muteBtn.textContent = volume > 0 ? '🔊' : '🔇';
 }
 
-function seekTo(e) {
-    const xrContent = document.getElementById('xrContent');
-    const videoFrame = document.getElementById('videoFrame');
-    const iframeDoc = videoFrame.contentDocument || videoFrame.contentWindow.document;
-    const video = iframeDoc.getElementById('xrVideo');
-    
-    const progressBar = e.currentTarget;
-    const clickPosition = e.offsetX / progressBar.offsetWidth;
-    
-    if (xrContent.style.display === 'block' && video) {
-        const time = clickPosition * video.duration;
-        video.currentTime = time;
-    } else {
-        const time = clickPosition * elements.audioElement.duration;
-        elements.audioElement.currentTime = time;
-    }
-}
+//XR Mode functions
 
-// XR mode
 function enterXRMode() {
     const currentTrack = playlist.tracks[state.currentTrack];
     if (currentTrack.IsAR && currentTrack.XR_Scene) {
+        // Store current playback state
+        const wasPlaying = !elements.audioElement.paused;
+        
+        // Switch to XR mode
         state.isXRMode = true;
         elements.audioContent.style.display = 'none';
         elements.xrContent.style.display = 'block';
         elements.viewXRBtn.style.display = 'none';
         elements.exitXRBtn.style.display = 'block';
         
-        // Small delay to ensure DOM updates are complete
-        setTimeout(() => {
-            setupXRScene(currentTrack.XR_Scene);
-        }, 100);
+        // Setup XR scene with current time
+        setupXRScene(currentTrack.XR_Scene);
+        
+        // If audio was playing, start video at same position
+        if (wasPlaying) {
+            setTimeout(() => {
+                postMessageToIframe({
+                    action: 'play',
+                    time: elements.audioElement.currentTime
+                });
+            }, 300); // Small delay to ensure iframe is ready
+        }
     }
 }
 
 function exitXRMode() {
+    // Get current time from video before switching
+    postMessageToIframe({ action: 'getCurrentTime' });
+    
+    const handleTimeResponse = (event) => {
+        if (event.data.type === 'currentTime') {
+            window.removeEventListener('message', handleTimeResponse);
+            
+            // Set audio to video's current time
+            elements.audioElement.currentTime = event.data.time;
+            
+            // Switch back to audio mode
+            state.isXRMode = false;
+            elements.audioContent.style.display = 'flex';
+            elements.xrContent.style.display = 'none';
+            elements.viewXRBtn.style.display = 'block';
+            elements.exitXRBtn.style.display = 'none';
+            
+            // Resume playback if needed
+            if (state.isPlaying) {
+                elements.audioElement.play().catch(console.error);
+            }
+        }
+    };
+    
+    window.addEventListener('message', handleTimeResponse);
+}
+
+
+function completeExitXRMode(videoTime) {
+    // Switch back to audio mode
     state.isXRMode = false;
     elements.audioContent.style.display = 'flex';
     elements.xrContent.style.display = 'none';
     elements.viewXRBtn.style.display = 'block';
     elements.exitXRBtn.style.display = 'none';
-    cleanupXRScene();
     
-    // Pause video but keep it for future use
-    if (state.videoElement) {
-        state.videoElement.pause();
+    // Set audio to video's time and play if video was playing
+    elements.audioElement.currentTime = videoTime;
+    if (state.isPlaying) {
+        elements.audioElement.play().catch(console.error);
     }
 }
 
-// XR Scene setup
-function setupXRScene(sceneUrl) {
-    // Clean up any existing scene
-    cleanupXRScene();
+function setupXRScene(videoUrl) {
+    const iframe = elements.videoFrame;
+    
+    const aframeHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>360 Video</title>
+            <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+            <style>body { margin: 0; overflow: hidden; }</style>
+        </head>
+        <body>
+            <a-scene>
+                <a-assets>
+                    <video id="xrVideo" muted crossorigin="anonymous">
+                        <source src="${videoUrl}" type="video/mp4">
+                    </video>
+                </a-assets>
+                
+                <a-videosphere src="#xrVideo" rotation="0 -130 0"></a-videosphere>
+                <a-camera position="0 1.6 0" look-controls></a-camera>
+                
+                <script>
+                    const video = document.getElementById('xrVideo');
+                    video.muted = true; // Ensure video is muted
+                    
+                    // Handle parent messages
+                    window.addEventListener('message', (event) => {
+                        switch(event.data.action) {
+                            case 'play':
+                                video.currentTime = ${elements.audioElement.currentTime};
+                                video.play().catch(e => console.log(e));
+                                break;
+                            case 'pause':
+                                video.pause();
+                                break;
+                            case 'setTime':
+                                video.currentTime = event.data.time;
+                                break;
+                        }
+                    });
+                </script>
+            </a-scene>
+        </body>
+        </html>
+    `;
+    
+    iframe.srcdoc = aframeHTML;
+}
 
-    // Create new scene with proper sizing
-    const scene = document.createElement('a-scene');
-    scene.setAttribute('embedded', '');
-    scene.setAttribute('renderer', 'logarithmicDepthBuffer: true');
-    scene.setAttribute('vr-mode-ui', 'enabled: false');
-    scene.setAttribute('device-orientation-permission-ui', 'enabled: false');
-    
-    // Create sky and camera
-    const sky = document.createElement('a-sky');
-    sky.setAttribute('src', sceneUrl);
-    sky.setAttribute('rotation', '0 -130 0');
-    
-    const camera = document.createElement('a-camera');
-    camera.setAttribute('position', '0 1.6 0');
-    camera.setAttribute('look-controls', '');
-    
-    // Append elements to scene
-    scene.appendChild(sky);
-    scene.appendChild(camera);
-    
-    // Append scene to container
-    elements.sceneContainer.appendChild(scene);
-
-    // Create single video element for sync
-    if (!state.videoElement) {
-        state.videoElement = document.createElement('video');
-        state.videoElement.style.display = 'none';
-        document.body.appendChild(state.videoElement);
+function postMessageToIframe(message) {
+    try {
+        if (elements.videoFrame.contentWindow) {
+            elements.videoFrame.contentWindow.postMessage(message, '*');
+        }
+    } catch (error) {
+        console.error('Iframe communication error:', error);
     }
-    
-    state.videoElement.src = sceneUrl;
-    
-    // Set up video event listeners
-    state.videoElement.addEventListener('loadedmetadata', () => {
-        elements.duration.textContent = formatTime(state.videoElement.duration);
-        // Sync video with audio if audio is already playing
-        if (state.isPlaying) {
-            syncVideoWithAudio();
-        }
-    });
-    
-    state.videoElement.addEventListener('timeupdate', () => {
-        if (state.isVideoSynced) {
-            updateProgress();
-        }
-    });
+}
 
-    // Ensure video is ready to play
-    state.videoElement.load();
-
-    // Force A-Frame to resize and initialize
-    setTimeout(() => {
-        if (scene.hasLoaded) {
-            scene.resize();
-            scene.forceResize();
-        } else {
-            scene.addEventListener('loaded', () => {
-                scene.resize();
-                scene.forceResize();
+// Unified play/pause control
+function togglePlayPause() {
+    state.isPlaying = !state.isPlaying;
+    updatePlayPauseButton();
+    
+    if (state.isPlaying) {
+        elements.audioElement.play().catch(console.error);
+        if (state.isXRMode) {
+            postMessageToIframe({
+                action: 'play',
+                time: elements.audioElement.currentTime
             });
         }
-    }, 100);
+    } else {
+        elements.audioElement.pause();
+        if (state.isXRMode) {
+            postMessageToIframe({ action: 'pause' });
+        }
+    }
+}
+
+// Update seekTo function to handle iframe
+function seekTo(e) {
+    const progressBar = e.currentTarget;
+    const clickPosition = e.offsetX / progressBar.offsetWidth;
+    const newTime = clickPosition * elements.audioElement.duration;
+    
+    elements.audioElement.currentTime = newTime;
+    
+    if (state.isXRMode) {
+        postMessageToIframe({
+            action: 'setTime',
+            time: newTime
+        });
+    }
 }
 
 function cleanupXRScene() {
@@ -298,14 +334,32 @@ function syncVideoWithAudio() {
     }
 }
 
+// Update progress bar
 function updateProgress() {
-    const element = state.isXRMode ? state.videoElement : elements.audioElement;
-    if (element) {
-        const progress = (element.currentTime / element.duration) * 100;
-        elements.progress.style.width = `${progress}%`;
-        elements.currentTime.textContent = formatTime(element.currentTime);
+    const currentTime = elements.audioElement.currentTime;
+    const duration = elements.audioElement.duration || playlist.tracks[state.currentTrack].duration;
+    
+    if (duration) {
+        const progressPercent = (currentTime / duration) * 100;
+        elements.progress.style.width = `${progressPercent}%`;
+        elements.currentTime.textContent = formatTime(currentTime);
+    }
+    
+    // Sync video time if in XR mode
+    if (state.isXRMode) {
+        postMessageToIframe({
+            action: 'setTime',
+            time: currentTime
+        });
     }
 }
+
+// Helper to get video time (will be async in real implementation)
+function getVideoCurrentTime() {
+    // In real implementation, this would use postMessage
+    return elements.audioElement.currentTime; // Fallback
+}
+
 
 function updatePlayPauseButton() {
     elements.playPauseBtn.innerHTML = state.isPlaying ? '⏸' : '▶';
@@ -351,6 +405,13 @@ function loadTrack(index) {
 
     updatePlayPauseButton();
     togglePlaylist();
+
+        // Preload video metadata if XR is available
+        if (track.IsAR && track.XR_Scene) {
+            const video = document.createElement('video');
+            video.src = track.XR_Scene;
+            video.load();
+        }
 }
 
 function togglePlaylist() {
