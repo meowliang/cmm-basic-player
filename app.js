@@ -49,7 +49,7 @@ const playlist = {
               artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-5.tif",
               playlist: "Ni de Aquí, ni de Allá",
               IsAR: true,
-              XR_Scene: "",
+              XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-DTLA-XR/2025-03-15-DTLA-CH-5-XR.mp4",
               duration: "2:30"
             },
             {
@@ -70,7 +70,7 @@ const playlist = {
               artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-7.tif",
               playlist: "Ni de Aquí, ni de Allá",
               IsAR: true,
-              XR_Scene: ""
+              XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-DTLA-XR/2025-03-15-DTLA-XR-7-low.mp4"
             },
             {
               chapter: 8,
@@ -110,7 +110,7 @@ const playlist = {
               artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-11.jpg",
               playlist: "Ni de Aquí, ni de Allá",
               IsAR: true,
-              XR_Scene: ""
+              XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-DTLA-XR/2025-03-15-DTLA-XR-11.mp4"
             },
             {
               chapter: 12,
@@ -160,7 +160,7 @@ const playlist = {
               artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-16.jpg",
               playlist: "Ni de Aquí, ni de Allá",
               IsAR: true,
-              XR_Scene: ""
+              XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-DTLA-XR/2025-03-15-DTLA-XR-16.mp4"
             },
             {
               chapter: 17,
@@ -390,6 +390,14 @@ function setupAudioElement() {
 function enterXRMode() {
     const currentTrack = playlist.tracks[state.currentTrack];
     if (currentTrack.IsAR && currentTrack.XR_Scene) {
+
+        // Additional validation check
+        if (!currentTrack.IsAR || !currentTrack.XR_Scene || currentTrack.XR_Scene.trim() === "") {
+            console.warn("Cannot enter XR mode - missing required properties");
+            elements.viewXRBtn.style.display = 'none';
+            return;
+        }
+
         // Store current playback state
         const wasPlaying = !elements.audioElement.paused;
         
@@ -724,6 +732,8 @@ function populatePlaylist() {
         <div class="playlist-track" data-index="${index}">
             <div>${track.title}</div>
             <div>${track.duration}</div>
+               ${track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "" ? 
+              '<span class="xr-badge">360°</span>' : ''}
         </div>
     `).join('');
 
@@ -751,6 +761,7 @@ function loadTrack(index) {
     elements.speedBtn.textContent = '1x';
 
     // Update XR button visibility
+    const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
     elements.viewXRBtn.style.display = track.IsAR && track.XR_Scene ? 'block' : 'none';
     elements.exitXRBtn.style.display = 'none';
 

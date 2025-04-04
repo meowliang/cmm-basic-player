@@ -278,6 +278,15 @@ body {
     color: #333;
 }
 
+.xr-badge {
+    background: #007AFF;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-left: 8px;
+}
+
 .playlist-tracks {
     padding: 1rem;
     overflow-y: auto;
@@ -285,6 +294,8 @@ body {
 }
 
 .playlist-track {
+    display: flex;
+    align-items: center;
     padding: 0.5rem;
     border-bottom: 1px solid #eee;
     cursor: pointer;
