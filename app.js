@@ -1,4 +1,5 @@
-// Playlist data (hardcoded for now)
+// ***** PLAYLIST DATA ******** (hardcoded for now)
+
 const playlist = {
     playlist_name: "Ni de Aquí, ni de Allá",
     tracks: [
@@ -11,9 +12,221 @@ const playlist = {
             XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/XR-TEASERS/2025-03-31-XR-TEASERS/2025-02-24-DTLA-AR-1-PLACITA.mp4",
             duration: "1:15"
         },
+            {
+              chapter: 2,
+              title: "LA Beginnings",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-2.mp3",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-2.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: "",
+              duration: "3:03"
+            },
+            {
+              chapter: 3,
+              title: "Carlos Tres",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-3.mp3",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-3.png",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: "",
+              duration: "2:48"
+            },
+            {
+              chapter: 4,
+              title: "Olde California",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-4.mp3",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-4.tif",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: "",
+              duration: "3:40"
+            },
+            {
+              chapter: 5,
+              title: "Avila Adobe",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-5.mp3",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-5.tif",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: true,
+              XR_Scene: "",
+              duration: "2:30"
+            },
+            {
+              chapter: 6,
+              title: "Dirty Mexicans",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-6.mp3",
+              duration: "2:50:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-6.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 7,
+              title: "Opening Night",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-7.mp3",
+              duration: "1:54:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-7.tif",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: true,
+              XR_Scene: ""
+            },
+            {
+              chapter: 8,
+              title: "América Tropical",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-8.mp3",
+              duration: "3:54:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-8.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 9,
+              title: "Christine Sterling's Legacy",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-9.mp3",
+              duration: "4:29:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-9.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 10,
+              title: "A Gathering Storm",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-10.mp3",
+              duration: "3:51:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-10.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 11,
+              title: "The Raid, Reprised",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-11.mp3",
+              duration: "1:56:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-11.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: true,
+              XR_Scene: ""
+            },
+            {
+              chapter: 12,
+              title: "The Aftermath",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-12.mp3",
+              duration: "1:14:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-12.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 13,
+              title: "Karla's Story, Part I",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-13.mp3",
+              duration: "3:57:00",
+              artwork_url: "",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 14,
+              title: "\"Voluntary\" Repatriation",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-14.mp3",
+              duration: "2:22:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-14.png",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 15,
+              title: "Emilia's Story",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-15.mp3",
+              duration: "1:44:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-15.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 16,
+              title: "In Union Station",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-16.mp3",
+              duration: "0:48:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-16.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: true,
+              XR_Scene: ""
+            },
+            {
+              chapter: 17,
+              title: "Departure",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-17.mp3",
+              duration: "2:09:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-17.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 18,
+              title: "Karla's Story, Part 2",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-18.mp3",
+              duration: "2:03:00",
+              artwork_url: "",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 19,
+              title: "Lasting Trauma",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-19.mp3",
+              duration: "2:19:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-19.png",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 20,
+              title: "Ni de Aquí, Ni de Allá",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-20.mp3",
+              duration: "2:40:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-20.jpg",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 21,
+              title: "Remebering a Buried History",
+              audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-21.mp3",
+              duration: "3:54:00",
+              artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-21.png",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            },
+            {
+              chapter: 22,
+              title: "Thank you",
+              audio_url: "",
+              duration: "0:48:00",
+              artwork_url: "",
+              playlist: "Ni de Aquí, ni de Allá",
+              IsAR: false,
+              XR_Scene: ""
+            }
+        
         // Add more tracks as needed
     ]
 };
+
 
 // State management
 const state = {
@@ -48,8 +261,22 @@ const elements = {
     playlistClose: document.getElementById('playlistClose'),
     permissionOverlay: document.getElementById('permissionOverlay'),
     enableMotionBtn: document.getElementById('enableMotionBtn'),
-    videoFrame: document.getElementById('videoFrame')
+    videoFrame: document.getElementById('videoFrame'),
+    menuBtn: document.getElementById('menuBtn'),
+    prevBtn: document.getElementById('prevBtn'),
+    nextBtn: document.getElementById('nextBtn'),
+    speedBtn: document.getElementById('speedBtn'),
 };
+
+function formatTime(seconds) {
+    if (typeof seconds === 'string') {
+        if (seconds.match(/^\d+:\d{2}$/)) return seconds;
+        seconds = parseFloat(seconds);
+    }
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
 
 // Initialize the player
 function initializePlayer() {
@@ -104,6 +331,11 @@ function setupEventListeners() {
     // Device orientation
     elements.enableMotionBtn.addEventListener('click', requestDeviceOrientation);
 
+    elements.menuBtn.addEventListener('click', togglePlaylist);
+    elements.prevBtn.addEventListener('click', playPreviousTrack);
+    elements.nextBtn.addEventListener('click', playNextTrack);
+    elements.speedBtn.addEventListener('click', togglePlaybackSpeed);
+
     // Video frame
     elements.videoFrame.addEventListener('load', () => {
         // When iframe loads, sync with audio
@@ -115,6 +347,27 @@ function setupEventListeners() {
             }
         }
     });
+
+//     // Keyboard shortcuts
+// document.addEventListener('keydown', (e) => {
+//     if (e.code === 'Space') {
+//         e.preventDefault();
+//         togglePlayPause();
+//     } else if (e.code === 'ArrowRight') {
+//         playNextTrack();
+//     } else if (e.code === 'ArrowLeft') {
+//         playPreviousTrack();
+//     } else if (e.code === 'KeyM') {
+//         toggleMute();
+//     } else if (e.code === 'BracketRight') {
+//         elements.audioElement.currentTime += 5;
+//     } else if (e.code === 'BracketLeft') {
+//         elements.audioElement.currentTime -= 5;
+//     } else if (e.code === 'KeyS') {
+//         togglePlaybackSpeed();
+//     }
+// });
+
 }
 
 // Audio element setup
@@ -131,25 +384,6 @@ function setupAudioElement() {
 
 
 
-// Volume control
-function toggleMute() {
-    state.isMuted = !state.isMuted;
-    elements.audioElement.muted = state.isMuted;
-    if (state.videoElement) {
-        state.videoElement.muted = state.isMuted;
-    }
-    elements.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
-}
-
-function handleVolumeChange(e) {
-    const volume = e.target.value;
-    elements.audioElement.volume = volume;
-    if (state.videoElement) {
-        state.videoElement.volume = volume;
-    }
-    state.volume = volume;
-    elements.muteBtn.textContent = volume > 0 ? '🔊' : '🔇';
-}
 
 //XR Mode functions
 
@@ -300,6 +534,127 @@ function togglePlayPause() {
     }
 }
 
+// Track navigation
+async function playNextTrack() {
+    if (!playlist?.tracks?.length) return;
+
+    const nextTrack = (state.currentTrack + 1) % playlist.tracks.length;
+    await loadTrack(nextTrack);
+
+     // Auto-play the new track
+     try {
+        await elements.audioElement.play();
+        state.isPlaying = true;
+        updatePlayPauseButton();
+        
+        // If in XR mode, sync the video
+        if (state.isXRMode) {
+            postMessageToIframe({
+                action: 'play',
+                time: elements.audioElement.currentTime
+            });
+        }
+    } catch (error) {
+        console.error('Error autoplaying next track:', error);
+        // Some browsers may block autoplay, you might want to show a play button
+    }
+    // if (state.isPlaying) {
+    //     elements.audioElement.play().catch(console.error);
+    // }
+}
+
+async function playPreviousTrack() {
+    if (!playlist?.tracks?.length) return;
+
+    // If we're more than 3 seconds into the track, restart it instead
+    if (elements.audioElement.currentTime > 3) {
+        elements.audioElement.currentTime = 0;
+        updateProgress();
+        return;
+    }
+    
+    const prevTrack = (state.currentTrack - 1 + playlist.tracks.length) % playlist.tracks.length;
+    await loadTrack(prevTrack);
+
+     // Auto-play the new track
+     try {
+        await elements.audioElement.play();
+        state.isPlaying = true;
+        updatePlayPauseButton();
+        
+        // If in XR mode, sync the video
+        if (state.isXRMode) {
+            postMessageToIframe({
+                action: 'play',
+                time: elements.audioElement.currentTime
+            });
+        }
+    } catch (error) {
+        console.error('Error autoplaying previous track:', error);
+    }
+
+    // if (state.isPlaying) {
+    //     elements.audioElement.play().catch(console.error);
+    // }
+}
+
+
+// Volume control
+function toggleMute() {
+    state.isMuted = !state.isMuted;
+    elements.audioElement.muted = state.isMuted;
+    if (state.videoElement) {
+        state.videoElement.muted = state.isMuted;
+    }
+    elements.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
+}
+
+function handleVolumeChange(e) {
+    const volume = e.target.value;
+    elements.audioElement.volume = volume;
+    if (state.videoElement) {
+        state.videoElement.volume = volume;
+    }
+    state.volume = volume;
+    elements.muteBtn.textContent = volume > 0 ? '🔊' : '🔇';
+}
+
+// Playback speed control
+function togglePlaybackSpeed() {
+    const speeds = [1, 1.5, 2];
+    const currentSpeed = elements.audioElement.playbackRate;
+    const currentIndex = speeds.indexOf(currentSpeed);
+    const nextIndex = (currentIndex + 1) % speeds.length;
+    const newSpeed = speeds[nextIndex];
+    
+    elements.audioElement.playbackRate = newSpeed;
+    if (state.videoElement) {
+        state.videoElement.playbackRate = newSpeed;
+    }
+    
+    elements.speedBtn.textContent = `${newSpeed}x`;
+    
+    // Show speed change feedback
+    const feedback = document.createElement('div');
+    feedback.textContent = `Playback speed: ${newSpeed}x`;
+    feedback.style.position = 'absolute';
+    feedback.style.bottom = '60px';
+    feedback.style.left = '50%';
+    feedback.style.transform = 'translateX(-50%)';
+    feedback.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    feedback.style.color = 'white';
+    feedback.style.padding = '5px 10px';
+    feedback.style.borderRadius = '5px';
+    feedback.style.zIndex = '100';
+    elements.playerContainer.appendChild(feedback);
+    
+    setTimeout(() => {
+        feedback.style.opacity = '0';
+        feedback.style.transition = 'opacity 0.5s';
+        setTimeout(() => feedback.remove(), 500);
+    }, 1000);
+}
+
 // Update seekTo function to handle iframe
 function seekTo(e) {
     const progressBar = e.currentTarget;
@@ -382,6 +737,7 @@ function populatePlaylist() {
 }
 
 function loadTrack(index) {
+    
     const track = playlist.tracks[index];
     state.currentTrack = index;
     state.isPlaying = false;
@@ -391,6 +747,8 @@ function loadTrack(index) {
     elements.trackTitle.textContent = track.title;
     elements.trackArtist.textContent = `Chapter ${track.chapter}`;
     elements.duration.textContent = track.duration;
+    elements.audioElement.playbackRate = 1;
+    elements.speedBtn.textContent = '1x';
 
     // Update XR button visibility
     elements.viewXRBtn.style.display = track.IsAR && track.XR_Scene ? 'block' : 'none';
@@ -414,6 +772,14 @@ function loadTrack(index) {
 
 function togglePlaylist() {
     elements.playlistContainer.classList.toggle('open');
+    
+    // Update menu button state
+    if (elements.playlistContainer.classList.contains('open')) {
+        elements.menuBtn.textContent = '✕';
+        elements.menuBtn.style.fontSize = '1.5rem';
+    } else {
+        elements.menuBtn.textContent = '☰';
+    }
 }
 
 // Device orientation
