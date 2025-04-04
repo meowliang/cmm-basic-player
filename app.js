@@ -268,15 +268,6 @@ const elements = {
     speedBtn: document.getElementById('speedBtn'),
 };
 
-function formatTime(seconds) {
-    if (typeof seconds === 'string') {
-        if (seconds.match(/^\d+:\d{2}$/)) return seconds;
-        seconds = parseFloat(seconds);
-    }
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-}
 
 // Initialize the player
 function initializePlayer() {
@@ -287,6 +278,24 @@ function initializePlayer() {
     
     // Add message listener for iframe communication
     window.addEventListener('message', handleIframeMessages);
+}
+
+
+
+
+/********************************* UTILITIES ************************ */
+
+
+
+
+function formatTime(seconds) {
+    if (typeof seconds === 'string') {
+        if (seconds.match(/^\d+:\d{2}$/)) return seconds;
+        seconds = parseFloat(seconds);
+    }
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
 function handleIframeMessages(event) {
@@ -385,7 +394,9 @@ function setupAudioElement() {
 
 
 
-//XR Mode functions
+/****************************** XR MODE ******************************** */
+
+
 
 function enterXRMode() {
     const currentTrack = playlist.tracks[state.currentTrack];
@@ -443,7 +454,12 @@ function completeExitXRMode(videoTime) {
 }
 
 
-function setupXRScene(videoUrl) {
+async function setupXRScene(videoUrl) {
+    // Fetch video as blob first
+    const response = await fetch(videoUrl);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
     const iframe = elements.videoFrame;
     
     const aframeHTML = `
@@ -457,7 +473,13 @@ function setupXRScene(videoUrl) {
         <body>
             <a-scene>
                 <a-assets>
-                    <video id="xrVideo" muted crossorigin="anonymous">
+                    <video id="xrVideo"
+                           crossorigin="anonymous"
+                           playsinline
+                           webkit-playsinline
+                           muted
+                           autoplay
+                           preload="auto">
                         <source src="${videoUrl}" type="video/mp4">
                     </video>
                 </a-assets>
@@ -468,6 +490,16 @@ function setupXRScene(videoUrl) {
                 <script>
                     const video = document.getElementById('xrVideo');
                     video.muted = true;
+
+                    // Video loading debugging
+                    video.addEventListener('error', (e) => {
+                    console.error('Video error details:', {
+                        error: e.target.error,
+                        readyState: video.readyState,
+                        networkState: video.networkState,
+                        cors: video.crossOrigin
+                    });
+                    });
                     
                     // Handle parent messages
                     window.addEventListener('message', (event) => {
@@ -520,6 +552,9 @@ function postMessageToIframe(message) {
         setTimeout(() => postMessageToIframe(message), 100);
     }
 }
+
+
+/********************************* PLAYER CONTROLS **************************** */
 
 // Unified play/pause control
 function togglePlayPause() {
@@ -726,6 +761,14 @@ function updatePlayPauseButton() {
     elements.playPauseBtn.innerHTML = state.isPlaying ? '⏸' : '▶';
 }
 
+
+
+
+/******************************* PLAYLIST MANAGEMENT ***************************** */
+
+
+
+
 // Playlist management
 function populatePlaylist() {
     elements.playlistTracks.innerHTML = playlist.tracks.map((track, index) => `
@@ -746,23 +789,30 @@ function populatePlaylist() {
     });
 }
 
-function loadTrack(index) {
+async function loadTrack(index) {
     
     const track = playlist.tracks[index];
     state.currentTrack = index;
-    state.isPlaying = false;
+    // state.isPlaying = false;
+
+    // Reset XR mode if switching tracks
+    if (state.isXRMode) {
+        await exitXRMode(); // Make sure we wait for exit to complete
+    }
 
     elements.audioElement.src = track.audio_url;
     elements.albumArt.src = track.artwork_url;
     elements.trackTitle.textContent = track.title;
     elements.trackArtist.textContent = `Chapter ${track.chapter}`;
     elements.duration.textContent = track.duration;
-    elements.audioElement.playbackRate = 1;
-    elements.speedBtn.textContent = '1x';
+
+    // elements.audioElement.playbackRate = 1;
+    // elements.speedBtn.textContent = '1x';
 
     // Update XR button visibility
     const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
-    elements.viewXRBtn.style.display = track.IsAR && track.XR_Scene ? 'block' : 'none';
+    // elements.viewXRBtn.style.display = track.IsAR && track.XR_Scene ? 'block' : 'none';
+    elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
     elements.exitXRBtn.style.display = 'none';
 
     // Reset XR mode if switching tracks
@@ -771,7 +821,7 @@ function loadTrack(index) {
     }
 
     updatePlayPauseButton();
-    togglePlaylist();
+    // togglePlaylist();
 
         // Preload video metadata if XR is available
         if (track.IsAR && track.XR_Scene) {
@@ -792,6 +842,11 @@ function togglePlaylist() {
         elements.menuBtn.textContent = '☰';
     }
 }
+
+
+
+/************************** DEVICE ORIENTATION ******************************* */
+
 
 // Device orientation
 function checkDeviceOrientation() {
