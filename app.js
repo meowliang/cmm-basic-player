@@ -284,7 +284,7 @@ async function initializePlayer() {
         preloadXRVideos().catch(console.error);
         
         // Load first track
-        await loadTrack(0);
+        await loadTrack(0, false);
         
         // Add message listener for iframe communication
         window.addEventListener('message', handleIframeMessages);
@@ -363,6 +363,14 @@ function setupEventListeners() {
     elements.prevBtn.addEventListener('click', playPreviousTrack);
     elements.nextBtn.addEventListener('click', playNextTrack);
     elements.speedBtn.addEventListener('click', togglePlaybackSpeed);
+
+    elements.playlistTracks.addEventListener('click', (e) => {
+        const trackElement = e.target.closest('.playlist-track');
+        if (trackElement) {
+            const index = parseInt(trackElement.dataset.index);
+            loadTrack(index, true); // Enable autoplay for playlist clicks
+        }
+    });
 
     // Video frame
     elements.videoFrame.addEventListener('load', () => {
@@ -918,11 +926,13 @@ function populatePlaylist() {
     });
 }
 
-async function loadTrack(index) {
+async function loadTrack(index, shouldAutoplay = false) {
     
     const track = playlist.tracks[index];
+    if (!track) return; // Safety check
+
     state.currentTrack = index;
-    // state.isPlaying = false;
+    state.isPlaying = false;
 
     // Reset XR mode if switching tracks
     if (state.isXRMode) {
@@ -933,7 +943,7 @@ async function loadTrack(index) {
     elements.albumArt.src = track.artwork_url;
     elements.trackTitle.textContent = track.title;
     elements.trackArtist.textContent = `Chapter ${track.chapter}`;
-    elements.duration.textContent = track.duration;
+    elements.duration.textContent = track.duration || '0:00';
 
     // elements.audioElement.playbackRate = 1;
     // elements.speedBtn.textContent = '1x';
@@ -943,6 +953,27 @@ async function loadTrack(index) {
     // elements.viewXRBtn.style.display = track.IsAR && track.XR_Scene ? 'block' : 'none';
     elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
     elements.exitXRBtn.style.display = 'none';
+
+    // Wait for audio to be ready
+    await new Promise((resolve) => {
+        const onCanPlay = () => {
+            elements.audioElement.removeEventListener('canplaythrough', onCanPlay);
+            resolve();
+        };
+        elements.audioElement.addEventListener('canplaythrough', onCanPlay);
+        elements.audioElement.load();
+    });
+
+    // Only autoplay if explicitly requested
+    if (shouldAutoplay) {
+        try {
+            await elements.audioElement.play();
+            state.isPlaying = true;
+        } catch (error) {
+            console.error('Autoplay blocked:', error);
+            state.isPlaying = false;
+        }
+    }
 
     preloadAdjacentXRVideos(index).catch(console.error);
 
