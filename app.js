@@ -415,6 +415,8 @@ function setupAudioElement() {
     elements.audioElement.addEventListener('ended', () => {
         state.isPlaying = false;
         updatePlayPauseButton();
+        // Play next track in audio mode
+        playNextTrack();
     });
 
     elements.audioElement.addEventListener('loadedmetadata', () => {
@@ -744,31 +746,43 @@ function togglePlayPause() {
 async function playNextTrack() {
     if (!playlist?.tracks?.length) return;
 
-    const nextTrack = (state.currentTrack + 1) % playlist.tracks.length;
-    await loadTrack(nextTrack);
+    try {
+        // Show loading indicator
+        elements.playPauseBtn.innerHTML = '⏳';
+        
+        // Exit XR mode if currently in it
+        if (state.isXRMode) {
+            await exitXRMode();
+        }
 
-     // Auto-play the new track
-     try {
+        const nextTrack = (state.currentTrack + 1) % playlist.tracks.length;
+        await loadTrack(nextTrack, true); // Pass true to autoplay
+        
+        // Auto-play the new track in audio mode
         await elements.audioElement.play();
         state.isPlaying = true;
         updatePlayPauseButton();
         
-        // If in XR mode, sync the video
-        if (state.isXRMode) {
-            postMessageToIframe({
-                action: 'play',
-                time: elements.audioElement.currentTime
-            });
-        }
+        // Update UI to show current track
+        highlightCurrentTrack();
     } catch (error) {
-        console.error('Error autoplaying next track:', error);
-        // Some browsers may block autoplay, you might want to show a play button
+        console.error('Error playing next track:', error);
+        state.isPlaying = false;
+        updatePlayPauseButton();
     }
-    // if (state.isPlaying) {
-    //     elements.audioElement.play().catch(console.error);
-    // }
 }
 
+// Helper function to highlight current track in playlist
+function highlightCurrentTrack() {
+    const tracks = elements.playlistTracks.querySelectorAll('.playlist-track');
+    tracks.forEach((track, index) => {
+        if (index === state.currentTrack) {
+            track.classList.add('active');
+        } else {
+            track.classList.remove('active');
+        }
+    });
+}
 async function playPreviousTrack() {
     if (!playlist?.tracks?.length) return;
 
