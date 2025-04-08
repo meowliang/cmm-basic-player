@@ -1004,11 +1004,14 @@ async function loadTrack(index, shouldAutoplay = false) {
     // elements.audioElement.playbackRate = 1;
     // elements.speedBtn.textContent = '1x';
 
-    // Update XR button visibility
-    const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
-    // elements.viewXRBtn.style.display = track.IsAR && track.XR_Scene ? 'block' : 'none';
-    elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
-    elements.exitXRBtn.style.display = 'none';
+        // Update XR button visibility - only if not in XR mode
+        if (!state.isXRMode) {
+            const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
+            elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
+            elements.exitXRBtn.style.display = 'none';
+        }
+
+
 
     // Wait for audio to be ready
     await new Promise((resolve) => {
