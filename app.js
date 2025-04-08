@@ -334,8 +334,8 @@ function handleIframeMessages(event) {
     } else if (event.data.type === 'currentTime') {
         completeExitXRMode(event.data.time);
     }  else if (event.data.type === 'videoEnded') {
-        // Video ended, exit XR mode and play next track
-        exitXRMode();
+        // Video ended - reset time to 0 and play next track
+        elements.audioElement.currentTime = 0;
         playNextTrack();
     }
 }
@@ -569,7 +569,7 @@ async function exitXRMode() {
     // Set a timeout fallback
     setTimeout(() => {
         if (state.exitingXR) {
-            completeExitXRMode(elements.audioElement.currentTime);
+            completeExitXRMode(0);
         }
     }, 1000);
 }
@@ -586,11 +586,24 @@ function completeExitXRMode(videoTime) {
     
     // Clean up iframe
     elements.xrContent.innerHTML = '';
+
+    // Check if we're at the end of the track
+    const atEnd = videoTime >= (elements.audioElement.duration - 0.5); // 0.5 second threshold
+
+    // Reset to beginning if at end or if this was triggered by video ended
+    const newTime = atEnd ? 0 : videoTime;
+    elements.audioElement.currentTime = newTime;
     
-    // Restore audio position
-    elements.audioElement.currentTime = videoTime;
-    if (state.isPlaying) {
-        elements.audioElement.play().catch(console.error);
+    if (!atEnd) {
+        elements.audioElement.currentTime = videoTime;
+        if (state.isPlaying) {
+            elements.audioElement.play().catch(console.error);
+        }
+    } else {
+        // At end - ensure paused state
+        elements.audioElement.currentTime = 0;
+        state.isPlaying = false;
+        updatePlayPauseButton();
     }
 
       // Reset XR mode state
@@ -757,6 +770,9 @@ async function playNextTrack() {
 
         const nextTrack = (state.currentTrack + 1) % playlist.tracks.length;
         await loadTrack(nextTrack, true); // Pass true to autoplay
+
+         // Ensure we start from beginning
+         elements.audioElement.currentTime = 0;
         
         // Auto-play the new track in audio mode
         await elements.audioElement.play();

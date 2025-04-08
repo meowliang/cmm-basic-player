@@ -234,6 +234,11 @@ body {
     background: rgba(0, 0, 0, 0.4);
 }
 
+.playlist-track.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+}
+
 /* Speed Button */
 #speedBtn {
     order: 3;
@@ -316,6 +321,7 @@ body {
     font-size: 0.9rem;
     opacity: 0.8;
 }
+
 
 /* Album Art */
 .album-art {
