@@ -12,22 +12,23 @@
   @font-face {
     font-family: 'Figtree';
     src: url('fonts/Figtree-Regular.ttf');
+    font-style: normal;
   }
   
   @font-face {
-    font-family: 'Figtree';
+    font-family: 'Figtree-Italic';
     src: url('fonts/Figtree-Italic.ttf');
     font-style: italic, oblique;
   }
   
   @font-face {
-    font-family: 'Figtree';
+    font-family: 'Figtree-Bold';
     src: url('fonts/Figtree-Bold.ttf');
     font-weight: bold;
   }
 
   @font-face {
-    font-family: 'Figtree';
+    font-family: 'Figtree-BoldItalic';
     src: url('fonts/Figtree-BoldItalic.ttf');
     font-weight: bold;
     font-style: italic, oblique;
@@ -59,18 +60,32 @@ body {
     background-color: var(--navy);
     color: var(--creme);
     line-height: 1.6;
+    margin: 0;
+    padding: 0;
 }
 
 h1 {
     font-family: 'GothicA1';
     font-weight: bold;
-    font-size: 48px;
+    font-size: 3rem;
+    margin: 1rem;
 }
 
 h2 {
     font-family: 'GothicA1';
     font-weight: bold;
-    font-size: 32px;
+    font-size: 1.2rem;
+}
+
+p {
+    font-family: 'Figtree';
+    font-style: normal;
+    color: var(--navy);
+    font-size: 1.2rem;
+}
+
+#trackArtist {
+    color: var(--creme);
 }
 
 /* Overlay */
@@ -112,8 +127,8 @@ h2 {
 
 /* Player Container */
 .player-container {
-    margin: 2rem auto;
-    padding: 1rem;
+    /* margin: 2rem auto; */
+    /* padding: 1rem; */
     background: var(--navy);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -221,7 +236,7 @@ h2 {
     gap: 0.5rem;
     z-index: 10;
     border-radius: 8px;
-    margin-top: 0.5rem;
+    margin-top: 0;
 }
 
 
@@ -301,25 +316,36 @@ h2 {
 
 /* Mode Switch */
 .mode-switch {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 0.5rem; /* Add some space above controls */
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 10;
+    bottom: 160px; /* Position above controls */
+    left: 50%;
+    transform: translateX(-50%);
+    /* Remove top/right positioning */
+    padding: 12px 24px; /* Slightly smaller padding */
+    margin: 0 auto; /* Center the button */
+    z-index: 100;
+
 }
 
-#viewXRBtn , #exitXRBtn {
-    padding: 24px 48px;
+
+
+.mode-switch .control-btn {
+    background: var(--creme);
+    border-radius: 8px;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Figtree';
-}
-
-.mode-switch .control-btn {
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
+    order: 1;
+    width: 160px;
+    height: 60px;
+    text-align: center;
 }
 
 /* Track Info */
@@ -439,17 +465,17 @@ h2 {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .player-container {
+    /* .player-container {
         margin: 1rem;
         padding: 0.5rem;
-    }
+    } */
 
     .content-section {
         height: 300px;
     }
 
     .album-art {
-        width: 150px;
-        height: 150px;
+        width: 180px;
+        height: 180px;
     }
 }
