@@ -634,7 +634,7 @@ function setupXRScene(videoUrl) {
                  <!-- Camera setup for natural movement -->
                 <a-entity position="0 1.6 0">
                     <a-camera
-                        look-controls="pointerLockEnabled: true;
+                        look-controls="pointerLockEnabled: false;
                                     reverseMouseDrag: false;
                                     touchEnabled: true;
                                     magicWindowTrackingEnabled: true">
