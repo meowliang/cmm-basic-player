@@ -967,7 +967,7 @@ function populatePlaylist() {
     elements.playlistTracks.innerHTML = playlist.tracks.map((track, index) => `
         <div class="playlist-track" data-index="${index}">
             <div>${track.title}</div>
-            <div>${track.duration}</div>
+
                ${track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "" ? 
               '<span class="xr-badge">360°</span>' : ''}
         </div>
