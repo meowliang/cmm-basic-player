@@ -333,6 +333,10 @@ function handleIframeMessages(event) {
         }
     } else if (event.data.type === 'currentTime') {
         completeExitXRMode(event.data.time);
+    }  else if (event.data.type === 'videoEnded') {
+        // Video ended, exit XR mode and play next track
+        exitXRMode();
+        playNextTrack();
     }
 }
 
@@ -586,6 +590,9 @@ function completeExitXRMode(videoTime) {
     if (state.isPlaying) {
         elements.audioElement.play().catch(console.error);
     }
+
+      // Reset XR mode state
+      state.isXRMode = false;
 }
 
 
@@ -644,7 +651,7 @@ function setupXRScene(videoUrl) {
 
                 
                 <script>
-                    const video = document.getElementById('xrVideo');
+                                        const video = document.getElementById('xrVideo');
                     video.muted = true;
                     
                     // Notify parent when ready
@@ -658,6 +665,13 @@ function setupXRScene(videoUrl) {
                     
                     video.addEventListener('canplaythrough', notifyReady);
                     if (video.readyState > 3) notifyReady();
+                    
+                    // Handle video ended event
+                    video.addEventListener('ended', () => {
+                        window.parent.postMessage({
+                            type: 'videoEnded'
+                        }, '*');
+                    });
                     
                     // Handle parent messages
                     window.addEventListener('message', (event) => {
