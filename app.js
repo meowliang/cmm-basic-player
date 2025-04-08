@@ -614,9 +614,10 @@ function setupXRScene(videoUrl) {
             <style>body { margin: 0; overflow: hidden; }</style>
         </head>
         <body>
-            <a-scene timeout="10000">  <!-- 10 second timeout -->
+            <a-scene device-orientation-permission-ui> 
                 <a-assets>
                     <video id="xrVideo"
+                            src="${videoUrl}"
                            crossorigin="anonymous"
                            playsinline
                            webkit-playsinline
@@ -624,12 +625,23 @@ function setupXRScene(videoUrl) {
                            autoplay
                            preload="auto"
                            xr-layer>
-                        <source src="${videoUrl}" type="video/mp4">
                     </video>
                 </a-assets>
                 
-                <a-videosphere src="#xrVideo" rotation="0 -130 0"></a-videosphere>
-                <a-camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-camera>
+                <a-videosphere src="#xrVideo" rotation="0 -90 0"></a-videosphere>
+              
+        
+                 <!-- Camera setup for natural movement -->
+                <a-entity position="0 1.6 0">
+                    <a-camera
+                        look-controls="pointerLockEnabled: true;
+                                    reverseMouseDrag: false;
+                                    touchEnabled: true;
+                                    magicWindowTrackingEnabled: true">
+                    </a-camera>
+                    <a-cursor></a-cursor>
+                </a-entity>
+
                 
                 <script>
                     const video = document.getElementById('xrVideo');
