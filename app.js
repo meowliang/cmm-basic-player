@@ -239,7 +239,14 @@ const state = {
     volume: 1,
     isMuted: false,
     videoElement: null,
-    isVideoSynced: false
+    isVideoSynced: false,
+    hasMotionPermission: false,
+    isMobileDevice: false,
+    isIOS: false,
+    experienceStarted: false,
+    awaitingPermission: false,
+    hasMotionPermission: false,
+    permissionRequested: false
 };
 
 // DOM Elements
@@ -274,25 +281,14 @@ const elements = {
 
 // Initialize the player
 async function initializePlayer() {
-
-        // Detect iOS Safari
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        
-        if (isIOS && isSafari) {
-            // Add iOS-specific fixes
-            document.body.classList.add('ios-safari');
-            
-            // Force fullscreen for video elements to work properly
-            document.documentElement.requestFullscreen().catch(e => {});
-        }
-
         
     try {
         setupEventListeners();
         populatePlaylist();
         setupAudioElement();
-        checkDeviceOrientation();
+
+                // Check device orientation but don't block initialization
+        setTimeout(checkDeviceOrientation, 1000);
         
         // Preload XR videos in background
         preloadXRVideos().catch(console.error);
@@ -302,6 +298,10 @@ async function initializePlayer() {
         
         // Add message listener for iframe communication
         window.addEventListener('message', handleIframeMessages);
+
+                // Mark experience as started
+                state.experienceStarted = true;
+
     } catch (error) {
         console.error('Error initializing player:', error);
     }
@@ -533,8 +533,20 @@ async function enterXRMode() {
 
     // Show loading state
     elements.xrContent.innerHTML = '<div class="xr-loading">Loading 360° experience...</div>';
+
+                   // Check if we need to request permission
+                   if (typeof DeviceOrientationEvent !== 'undefined' && 
+                    typeof DeviceOrientationEvent.requestPermission === 'function' &&
+                    !state.hasMotionPermission) {
+                    
+                    // Show permission overlay again
+                    elements.permissionOverlay.style.display = 'flex';
+                    return;
+                }
     
     try {
+
+
         // Preload video first
         const videoReady = await preloadXRVideo(currentTrack.XR_Scene);
         if (!videoReady) throw new Error('Video failed to load');
@@ -564,6 +576,7 @@ async function enterXRMode() {
     } catch (error) {
         console.error('Failed to enter XR mode:', error);
         elements.xrContent.innerHTML = '<div class="xr-error">Failed to load 360° content</div>';
+
         setTimeout(() => completeExitXRMode(elements.audioElement.currentTime), 2000);
     }
 }
@@ -650,7 +663,7 @@ function setupXRScene(videoUrl) {
             <style>body { margin: 0; overflow: hidden; }</style>
         </head>
         <body>
-            <a-scene device-orientation-permission-ui> 
+             <a-scene vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
                 <a-assets>
                     <video id="xrVideo"
                             src="${videoUrl}"
@@ -682,16 +695,16 @@ function setupXRScene(videoUrl) {
                 <script>
                     const video = document.getElementById('xrVideo');
 
-                      // iOS requires direct user interaction to play video
-                function handleFirstInteraction() {
-                    document.removeEventListener('touchstart', handleFirstInteraction);
-                    document.removeEventListener('click', handleFirstInteraction);
-                    
-                    video.play().catch(e => console.error('Video play error:', e));
-                }
-                
-                document.addEventListener('touchstart', handleFirstInteraction, { once: true });
-                document.addEventListener('click', handleFirstInteraction, { once: true });
+            // iOS requires direct play
+            function handleFirstTap() {
+                document.removeEventListener('touchstart', handleFirstTap);
+                video.play().catch(e => console.log('Play error:', e));
+            }
+            document.addEventListener('touchstart', handleFirstTap, { once: true });
+            
+            // Parent communication
+            window.addEventListener('message', (e) => {
+                if (!video) return;
                     
                     
                     // Notify parent when ready
@@ -1080,7 +1093,7 @@ function togglePlaylist() {
         elements.menuBtn.textContent = '✕';
         elements.menuBtn.style.fontSize = '1.5rem';
     } else {
-        elements.menuBtn.textContent = '<i class="fas fa-bars">';
+        elements.menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
     }
 }
 
@@ -1091,29 +1104,89 @@ function togglePlaylist() {
 
 // Device orientation
 function checkDeviceOrientation() {
-    if (typeof DeviceOrientationEvent !== 'undefined') {
+    // Only proceed on iOS Safari
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    if (isIOS && isSafari) {
+        document.body.classList.add('ios-safari');
+        
+        // Show overlay immediately for iOS Safari
         elements.permissionOverlay.style.display = 'flex';
-    } else {
+        
+        // Set up button handler (only once)
+        if (!state.permissionRequested) {
+            elements.enableMotionBtn.addEventListener('click', handleEnableMotionClick, { once: true });
+        }
+    }
+}
+
+async function handleEnableMotionClick() {
+    state.awaitingPermission = true;
+    elements.enableMotionBtn.textContent = 'Loading...';
+    elements.enableMotionBtn.disabled = true;
+    
+    try {
+        // This is the critical line that triggers the system prompt
+        const permissionState = await DeviceOrientationEvent.requestPermission();
+        
+        if (permissionState === 'granted') {
+            state.hasMotionPermission = true;
+            showMessage("Motion controls enabled", 2000);
+        } else {
+            showMessage("Using touch controls", 2000);
+        }
+    } catch (error) {
+        console.error("Permission error:", error);
+        showMessage("Error enabling motion", 2000);
+    } finally {
         elements.permissionOverlay.style.display = 'none';
+        state.awaitingPermission = false;
+        state.permissionRequested = true;
     }
 }
 
 function requestDeviceOrientation() {
+    // Visual feedback
+    elements.enableMotionBtn.textContent = 'Loading...';
+    elements.enableMotionBtn.disabled = true;
+    
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-            .then(permissionState => {
-                if (permissionState === 'granted') {
-                    elements.permissionOverlay.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error requesting device orientation permission:', error);
-                elements.permissionOverlay.style.display = 'none';
-            });
+      DeviceOrientationEvent.requestPermission()
+        .then(permissionState => {
+          if (permissionState === 'granted') {
+            console.log('Motion permission granted');
+            showMessage("Motion controls enabled", 2000);
+            
+            // IMPORTANT: Set permission flag but DON'T enter XR mode
+            state.hasMotionPermission = true;
+          } else {
+            console.log('Motion permission denied');
+            showMessage("Motion controls not available", 2000);
+            state.hasMotionPermission = false;
+          }
+        })
+        .catch(error => {
+          console.error('Permission error:', error);
+          showMessage("Error enabling motion controls", 2000);
+          state.hasMotionPermission = false;
+        })
+        .finally(() => {
+          // Hide overlay regardless of outcome
+          elements.permissionOverlay.style.display = 'none';
+          
+          // Reset button state
+          setTimeout(() => {
+            elements.enableMotionBtn.textContent = 'Enable Motion Controls';
+            elements.enableMotionBtn.disabled = false;
+          }, 1000);
+        });
     } else {
-        elements.permissionOverlay.style.display = 'none';
+      // Non-iOS devices - just hide overlay
+      elements.permissionOverlay.style.display = 'none';
+      state.hasMotionPermission = true; // Assume granted on non-iOS
     }
-}
+  }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initializePlayer);
