@@ -867,7 +867,7 @@ function toggleMute() {
     if (state.videoElement) {
         state.videoElement.muted = state.isMuted;
     }
-    elements.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
+    elements.muteBtn.textContent = state.isMuted ? '<i class="fas fa-volume-mute">' : '<i class="fas fa-volume-up"></i>';
 }
 
 function handleVolumeChange(e) {
@@ -877,7 +877,7 @@ function handleVolumeChange(e) {
         state.videoElement.volume = volume;
     }
     state.volume = volume;
-    elements.muteBtn.textContent = volume > 0 ? '🔊' : '🔇';
+    elements.muteBtn.textContent = volume > 0 ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute">';
 }
 
 // Playback speed control
@@ -976,7 +976,7 @@ function getVideoCurrentTime() {
 
 
 function updatePlayPauseButton() {
-    elements.playPauseBtn.innerHTML = state.isPlaying ? '⏸' : '▶';
+    elements.playPauseBtn.innerHTML = state.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
 
 
@@ -1080,7 +1080,7 @@ function togglePlaylist() {
         elements.menuBtn.textContent = '✕';
         elements.menuBtn.style.fontSize = '1.5rem';
     } else {
-        elements.menuBtn.textContent = '☰';
+        elements.menuBtn.textContent = '<i class="fas fa-bars">';
     }
 }
 
