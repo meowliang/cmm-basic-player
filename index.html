@@ -10,9 +10,44 @@
 <body>
     <!-- Permission Overlay -->
     <div id="permissionOverlay" class="overlay">
+        
         <div class="overlay-content">
-            <h2>Enable Motion Controls</h2>
-            <p>To experience the 360° tour, please enable motion controls.</p>
+
+            <div class="icon-container">
+                <i class="icon fas fa-vr-cardboard"></i>
+              </div>
+
+            <h2>Immersive 360° Experience</h2>
+      
+            <div class="device-tilt-animation">
+              <div class="device-screen"></div>
+            </div>
+
+            <p>This experience uses your device's motion sensors to create an immersive 360° environment.</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                  <i class="fas fa-music"></i>
+                  <span>High-quality audio</span>
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-vr-cardboard"></i>
+                  <span>360° visuals</span>
+                </div>
+                <div class="feature-item">
+                  <i class="fas fa-mobile-alt"></i>
+                  <span>Motion controls</span>
+                </div>
+              </div>
+
+            <div class="permission-steps">
+                <p><strong>When prompted:</strong></p>
+                <ul>
+                  <li>Tap "Allow" to enable motion and orientation access</li>
+                  <li>For the best experience, use headphones and move around</li>
+                </ul>
+              </div>
+
             <button id="enableMotionBtn">Enable 360° Experience</button>
         </div>
     </div>
@@ -21,9 +56,9 @@
     <div id="content">
         <!-- Unified Player Container -->
         <div id="playerContainer" class="player-container">
-            <div class="player-header">
+            <!-- <div class="player-header">
                 <h1 id="playlistName">Ni de Aquí, ni de Allá</h1>
-            </div>
+            </div> -->
             
             <div class="player-content">
                 <!-- Content Area - Switches between audio and XR -->
@@ -34,8 +69,8 @@
                             <img id="albumArt" src="https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-1.jpg" alt="Album Art">
                         </div>
                         <div class="track-info">
-                            <h2 id="trackTitle">La Placita Raid</h2>
-                            <p id="trackArtist">Chapter 1</p>
+                            <h2 id="trackTitle">Chapter 1: La Placita Raid</h2>
+                            <p id="trackArtist">Ni de Aquí, ni de Allá</p>
                         </div>
                     </div>
                     

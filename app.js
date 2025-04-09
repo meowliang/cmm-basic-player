@@ -274,6 +274,20 @@ const elements = {
 
 // Initialize the player
 async function initializePlayer() {
+
+        // Detect iOS Safari
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        
+        if (isIOS && isSafari) {
+            // Add iOS-specific fixes
+            document.body.classList.add('ios-safari');
+            
+            // Force fullscreen for video elements to work properly
+            document.documentElement.requestFullscreen().catch(e => {});
+        }
+
+        
     try {
         setupEventListeners();
         populatePlaylist();
@@ -666,8 +680,19 @@ function setupXRScene(videoUrl) {
 
                 
                 <script>
-                                        const video = document.getElementById('xrVideo');
-                    video.muted = true;
+                    const video = document.getElementById('xrVideo');
+
+                      // iOS requires direct user interaction to play video
+                function handleFirstInteraction() {
+                    document.removeEventListener('touchstart', handleFirstInteraction);
+                    document.removeEventListener('click', handleFirstInteraction);
+                    
+                    video.play().catch(e => console.error('Video play error:', e));
+                }
+                
+                document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+                document.addEventListener('click', handleFirstInteraction, { once: true });
+                    
                     
                     // Notify parent when ready
                     function notifyReady() {
@@ -997,8 +1022,8 @@ async function loadTrack(index, shouldAutoplay = false) {
 
     elements.audioElement.src = track.audio_url;
     elements.albumArt.src = track.artwork_url;
-    elements.trackTitle.textContent = track.title;
-    elements.trackArtist.textContent = `Chapter ${track.chapter}`;
+    elements.trackTitle.textContent = `Chapter ${track.chapter}: ${track.title}`;
+    elements.trackArtist.textContent = `Ni de Aquí, ni de Allá`;
     elements.duration.textContent = track.duration || '0:00';
 
     // elements.audioElement.playbackRate = 1;
