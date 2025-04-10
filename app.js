@@ -40,7 +40,7 @@ const playlist = {
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-JAPANTOWN/2025-03-15-JAPANTOWN-ART/2025-03-15-JAPANTOWN-CH3b-ART.jpg",
       playlist: "Returning to the Harlem of the West",
       IsAR: true,
-      XR_Scene: "",
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-JAPANTOWN-XR/2025-03-15-JAPANTOWN-CH-4-LOW.mp4",
       duration: "1:44:00"
     },
     {
@@ -80,7 +80,7 @@ const playlist = {
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-JAPANTOWN/2025-03-15-JAPANTOWN-ART/2025-03-15-JAPANTOWN-CH6b-ART.TIF",
       playlist: "Returning to the Harlem of the West",
       IsAR: true,
-      XR_Scene: "",
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-JAPANTOWN-XR/2025-03-15-JAPANTOWN-CH-8.mp4",
       duration: "2:06.00"
     },
     {
@@ -130,7 +130,7 @@ const playlist = {
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-JAPANTOWN/2025-03-15-JAPANTOWN-ART/2025-03-15-JAPANTOWN-CH11-ART.gif",
       playlist: "Returning to the Harlem of the West",
       IsAR: true,
-      XR_Scene: "",
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-JAPANTOWN-XR/2025-04-01-JAPANTOWN-CH-13.mp4",
       duration: "2:59:00"
     },
     {
@@ -160,7 +160,7 @@ const playlist = {
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-JAPANTOWN/2025-03-15-JAPANTOWN-ART/2025-03-15-JAPANTOWN-CH14-ART.jpg",
       playlist: "Returning to the Harlem of the West",
       IsAR: true,
-      XR_Scene: "",
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-JAPANTOWN-XR/2025-03-15-JAPANTOWN-CH-16.mp4",
       duration: "2:13:00"
     },
     {
