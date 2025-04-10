@@ -9,7 +9,7 @@ const playlist = {
       audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-1.mp3",
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-1.jpg",
       IsAR: true,
-      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-10-DTLA-XR-CHAPTERS/2025-04-10-DTLA-XR-1-LOW-1200.mp4",
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/XR-TEASERS/2025-03-31-XR-TEASERS/2025-02-24-DTLA-AR-1-PLACITA.mp4",
       duration: "1:15"
     },
     {
@@ -49,7 +49,7 @@ const playlist = {
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-5.tif",
       playlist: "Ni de Aquí, Ni de Allá",
       IsAR: true,
-      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-10-DTLA-XR-CHAPTERS/2025-04-10-DTLA-XR-5-low-1200.mp4",
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-DTLA-XR/2025-03-15-DTLA-CH-5-XR.mp4",
       duration: "2:30"
     },
     {
@@ -70,7 +70,7 @@ const playlist = {
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-7.tif",
       playlist: "Ni de Aquí, Ni de Allá",
       IsAR: true,
-      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-10-DTLA-XR-CHAPTERS/2025-04-10-DTLA-XR-7-low-1200.mp4"
+      XR_Scene: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-01-DTLA-XR/2025-03-15-DTLA-XR-7-low.mp4"
     },
     {
       chapter: 8,
@@ -204,7 +204,7 @@ const playlist = {
     },
     {
       chapter: 21,
-      title: "Remembering a Buried History",
+      title: "Remebering a Buried History",
       audio_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-21.mp3",
       duration: "3:54:00",
       artwork_url: "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-21.png",
@@ -606,12 +606,16 @@ function completeExitXRMode(videoTime) {
   console.log('Completing XR exit');
   state.exitingXR = false;
   state.isXRMode = false; // Ensure state is clean
+
+  const currentTrack = playlist.tracks[state.currentTrack];
+  const showXRButton = currentTrack.IsAR && currentTrack.XR_Scene && currentTrack.XR_Scene.trim() !== "";
   
   // Update UI
   elements.audioContent.style.display = 'flex';
   elements.xrContent.style.display = 'none';
   elements.viewXRBtn.style.display = 'flex';
   elements.exitXRBtn.style.display = 'none';
+  
   
   // Clean up iframe
   elements.xrContent.innerHTML = '';
@@ -1044,7 +1048,7 @@ async function loadTrack(index, shouldAutoplay = false) {
   elements.audioElement.src = track.audio_url;
   elements.albumArt.src = track.artwork_url;
   elements.trackTitle.textContent = `Chapter ${track.chapter}: ${track.title}`;
-  elements.trackArtist.textContent = `Ni de Aquí, Ni de Allá`;
+  elements.trackArtist.textContent = `Returning to the Harlem of the West`;
   elements.duration.textContent = track.duration || '0:00';
 
   // elements.audioElement.playbackRate = 1;
@@ -1057,8 +1061,9 @@ async function loadTrack(index, shouldAutoplay = false) {
       //     elements.exitXRBtn.style.display = 'none';
       // }
 
-      // Always show/hide based on XR mode state
-elements.viewXRBtn.style.display = state.isXRMode ? 'none' : 'flex';
+// Show View 360° button only if track has XR content AND we're not in XR mode
+const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
+elements.viewXRBtn.style.display = (showXRButton && !state.isXRMode) ? 'flex' : 'none';
 elements.exitXRBtn.style.display = state.isXRMode ? 'flex' : 'none';
 
 
