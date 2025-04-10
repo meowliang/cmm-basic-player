@@ -1048,7 +1048,7 @@ async function loadTrack(index, shouldAutoplay = false) {
   elements.audioElement.src = track.audio_url;
   elements.albumArt.src = track.artwork_url;
   elements.trackTitle.textContent = `Chapter ${track.chapter}: ${track.title}`;
-  elements.trackArtist.textContent = `Returning to the Harlem of the West`;
+  elements.trackArtist.textContent = `Ni de Aquí, Ni de Allá`;
   elements.duration.textContent = track.duration || '0:00';
 
   // elements.audioElement.playbackRate = 1;
