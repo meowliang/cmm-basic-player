@@ -725,6 +725,16 @@ p {
     margin: 8px;
 }
 
+.mode-switch .control-btn {
+    background: rgba(255,253,236, 0.9);
+    width: 140px;
+    height: 40px;
+}
+
+.mode-switch .control-btn > p {
+    font-size: 1rem;
+}
+
 #skipMotionBtn > p {
     font-size: 0.9rem;
 }
