@@ -275,17 +275,17 @@ const elements = {
 // Initialize the player
 async function initializePlayer() {
 
-      // Detect iOS Safari
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      // // Detect iOS Safari
+      // const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      // const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
       
-      if (isIOS && isSafari) {
-          // Add iOS-specific fixes
-          document.body.classList.add('ios-safari');
+      // if (isIOS && isSafari) {
+      //     // Add iOS-specific fixes
+      //     document.body.classList.add('ios-safari');
           
-          // Force fullscreen for video elements to work properly
-          document.documentElement.requestFullscreen().catch(e => {});
-      }
+      //     // Force fullscreen for video elements to work properly
+      //     document.documentElement.requestFullscreen().catch(e => {});
+      // }
 
       
   try {
@@ -682,16 +682,7 @@ function setupXRScene(videoUrl) {
               <script>
                   const video = document.getElementById('xrVideo');
 
-                    // iOS requires direct user interaction to play video
-              function handleFirstInteraction() {
-                  document.removeEventListener('touchstart', handleFirstInteraction);
-                  document.removeEventListener('click', handleFirstInteraction);
-                  
-                  video.play().catch(e => console.error('Video play error:', e));
-              }
-              
-              document.addEventListener('touchstart', handleFirstInteraction, { once: true });
-              document.addEventListener('click', handleFirstInteraction, { once: true });
+
                   
                   
                   // Notify parent when ready
@@ -746,6 +737,17 @@ function setupXRScene(videoUrl) {
   state.iframeReady = false;
   
 }
+
+                  //   // iOS requires direct user interaction to play video
+                  //   function handleFirstInteraction() {
+                  //     document.removeEventListener('touchstart', handleFirstInteraction);
+                  //     document.removeEventListener('click', handleFirstInteraction);
+                      
+                  //     video.play().catch(e => console.error('Video play error:', e));
+                  // }
+                  
+                  // document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+                  // document.addEventListener('click', handleFirstInteraction, { once: true });
 
 function postMessageToIframe(message) {
   if (!state.iframeReady) {
