@@ -163,7 +163,12 @@ p {
     text-align: center;
   }
 
-#enableMotionBtn {
+  .overlay-btns {
+    display: flex;
+    
+  }
+
+.overlay-btn {
     padding: 18px 24px;
     background-color: var(--navy);
     color: var(--creme);

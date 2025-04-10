@@ -264,11 +264,13 @@ const elements = {
   playlistClose: document.getElementById('playlistClose'),
   permissionOverlay: document.getElementById('permissionOverlay'),
   enableMotionBtn: document.getElementById('enableMotionBtn'),
+  skipBtn: document.getElementById('skipMotionBtn'),
   videoFrame: document.getElementById('videoFrame'),
   menuBtn: document.getElementById('menuBtn'),
   prevBtn: document.getElementById('prevBtn'),
   nextBtn: document.getElementById('nextBtn'),
   speedBtn: document.getElementById('speedBtn'),
+
 };
 
 
@@ -376,6 +378,10 @@ function setupEventListeners() {
 
   // Device orientation
   elements.enableMotionBtn.addEventListener('click', requestDeviceOrientation);
+  elements.skipBtn.addEventListener('click', () => {
+    localStorage.setItem('hasRequestedMotionPermissions', 'true');
+    elements.permissionOverlay.style.display = 'none';
+});
 
   elements.menuBtn.addEventListener('click', togglePlaylist);
   elements.prevBtn.addEventListener('click', playPreviousTrack);
