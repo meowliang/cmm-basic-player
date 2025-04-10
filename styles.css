@@ -165,7 +165,7 @@ p {
 
   .overlay-btns {
     display: flex;
-    
+
   }
 
 .overlay-btn {
@@ -177,6 +177,31 @@ p {
     border-radius: 12px;
     margin: 16px;
 }
+
+.permission-feedback {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    max-width: 80%;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 1001;
+    pointer-events: none;
+  }
+  
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 
 
 /* Loading states for better UX */

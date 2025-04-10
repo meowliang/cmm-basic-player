@@ -276,25 +276,23 @@ const elements = {
 
 // Initialize the player
 async function initializePlayer() {
-
-      // // Detect iOS Safari
-      // const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      // const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      
-      // if (isIOS && isSafari) {
-      //     // Add iOS-specific fixes
-      //     document.body.classList.add('ios-safari');
-          
-      //     // Force fullscreen for video elements to work properly
-      //     document.documentElement.requestFullscreen().catch(e => {});
-      // }
-
       
   try {
       setupEventListeners();
       populatePlaylist();
       setupAudioElement();
       checkDeviceOrientation();
+
+          
+    // Check permissions and show overlay if needed
+    const hasRequestedBefore = localStorage.getItem('hasRequestedMotionPermissions');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    if (isIOS && !hasRequestedBefore) {
+      elements.permissionOverlay.style.display = 'flex';
+    } else {
+      elements.permissionOverlay.style.display = 'none';
+    }
       
       // Preload XR videos in background
       preloadXRVideos().catch(console.error);
@@ -377,7 +375,11 @@ function setupEventListeners() {
   elements.playlistClose.addEventListener('click', togglePlaylist);
 
   // Device orientation
-  elements.enableMotionBtn.addEventListener('click', requestDeviceOrientation);
+  elements.enableMotionBtn.addEventListener('click', function() {
+    // This direct function call is crucial for iOS
+    requestDeviceOrientation();
+  });
+
   elements.skipBtn.addEventListener('click', () => {
     localStorage.setItem('hasRequestedMotionPermissions', 'true');
     elements.permissionOverlay.style.display = 'none';
@@ -651,12 +653,15 @@ function setupXRScene(videoUrl) {
       <!DOCTYPE html>
       <html>
       <head>
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
           <title>360 Video</title>
           <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
           <style>body { margin: 0; overflow: hidden; }</style>
       </head>
       <body>
-          <a-scene device-orientation-permission-ui> 
+          <a-scene device-orientation-permission-ui
+                    vr-mode-ui="enabled: false"> 
               <a-assets>
                   <video id="xrVideo"
                           src="${videoUrl}"
@@ -1099,28 +1104,62 @@ function togglePlaylist() {
 
 // Device orientation
 function checkDeviceOrientation() {
-  if (typeof DeviceOrientationEvent !== 'undefined') {
-      elements.permissionOverlay.style.display = 'flex';
+  // Only show overlay on iOS Safari that supports the API
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  
+  const hasRequestedBefore = localStorage.getItem('hasRequestedMotionPermissions');
+  
+  if (isIOS && 
+      typeof DeviceOrientationEvent !== 'undefined' && 
+      typeof DeviceOrientationEvent.requestPermission === 'function' && 
+      !hasRequestedBefore) {
+    elements.permissionOverlay.style.display = 'flex';
   } else {
-      elements.permissionOverlay.style.display = 'none';
+    elements.permissionOverlay.style.display = 'none';
   }
 }
 
 function requestDeviceOrientation() {
-  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      DeviceOrientationEvent.requestPermission()
-          .then(permissionState => {
-              if (permissionState === 'granted') {
-                  elements.permissionOverlay.style.display = 'none';
-              }
-          })
-          .catch(error => {
-              console.error('Error requesting device orientation permission:', error);
-              elements.permissionOverlay.style.display = 'none';
-          });
+  // This must be called directly from a click handler
+  if (typeof DeviceOrientationEvent !== 'undefined' && 
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    
+    DeviceOrientationEvent.requestPermission()
+      .then(permissionState => {
+        if (permissionState === 'granted') {
+          localStorage.setItem('hasRequestedMotionPermissions', 'true');
+          elements.permissionOverlay.style.display = 'none';
+          
+          // Also request motion permission if available
+          if (typeof DeviceMotionEvent !== 'undefined' && 
+              typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission();
+          }
+        }
+      })
+      .catch(console.error);
   } else {
-      elements.permissionOverlay.style.display = 'none';
+    // Non-iOS or older browser
+    localStorage.setItem('hasRequestedMotionPermissions', 'true');
+    elements.permissionOverlay.style.display = 'none';
   }
+}
+
+function showPermissionFeedback(message) {
+  // Remove any existing feedback first
+  const existingFeedback = document.querySelector('.permission-feedback');
+  if (existingFeedback) existingFeedback.remove();
+  
+  const feedback = document.createElement('div');
+  feedback.className = 'permission-feedback';
+  feedback.textContent = message;
+  elements.permissionOverlay.appendChild(feedback);
+  
+  setTimeout(() => {
+    feedback.style.opacity = '0';
+    setTimeout(() => feedback.remove(), 500);
+  }, 3000);
 }
 
 // Initialize when DOM is loaded
