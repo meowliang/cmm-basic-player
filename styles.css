@@ -106,8 +106,8 @@ p {
 
 .overlay-content {
     max-width: 500px;
-    background: var(--creme);
-    color: var(--navy);
+    background: var(--navy);
+    color: var(--creme);
     font-size: 24px;
     padding: 2rem;
     border-radius: 8px;
@@ -124,6 +124,7 @@ p {
 
 .overlay-content > p {
     margin: 24px;
+    color: var(--creme);
 }
 
 .permission-steps {
@@ -131,7 +132,12 @@ p {
     margin: 20px 48px;
     padding-left: 20px;
     max-width: 360px;
+
   }
+
+.permission-steps > p {
+    color: var(--creme);
+}
   
   .permission-steps li {
     margin-bottom: 10px;
@@ -156,7 +162,7 @@ p {
   .feature-item i {
     font-size: 24px;
     margin-bottom: 8px;
-    color: var(--navy);
+    color: var(--creme);
   }
   
   .feature-item span {
@@ -170,18 +176,25 @@ p {
   }
 
 .overlay-btn {
-    padding: 18px 24px;
-    background-color: var(--navy);
-    color: var(--creme);
+    width: 100%;
+    background-color: var(--yellow);
+    color: var(--navy);
     font-family: 'Figtree';
     font-size: 24px;
-    border-radius: 12px;
+    /* border-radius: 12px; */
     margin: 16px;
+    border: none;
 }
 
 #skipMotionBtn {
     background: none;
+    color: var(--creme);
+    border: none;
+    margin-top: 0.8rem;
+}
 
+#skipMotionBtn > p {
+    color: var(--creme);
 }
 
 .permission-feedback {
