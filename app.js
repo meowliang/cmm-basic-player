@@ -541,19 +541,22 @@ async function enterXRMode() {
   elements.xrContent.innerHTML = '<div class="xr-loading">Loading 360° experience...</div>';
   
   try {
+          // Update state FIRST
+          state.isXRMode = true;
+
+                // Setup UI
+      elements.audioContent.style.display = 'none';
+      elements.xrContent.style.display = 'block';
+      elements.viewXRBtn.style.display = 'none';
+      elements.exitXRBtn.style.display = 'flex';
+
       // Preload video first
       const videoReady = await preloadXRVideo(currentTrack.XR_Scene);
       if (!videoReady) throw new Error('Video failed to load');
       
       // Store playback state
-      const wasPlaying = !elements.audioElement.paused;
-      state.isXRMode = true;
-      
-      // Setup UI
-      elements.audioContent.style.display = 'none';
-      elements.xrContent.style.display = 'block';
-      elements.viewXRBtn.style.display = 'none';
-      elements.exitXRBtn.style.display = 'block';
+      const wasPlaying = !elements.audioElement.paused;      
+
       
       // Setup scene
       setupXRScene(currentTrack.XR_Scene);
@@ -579,6 +582,11 @@ async function exitXRMode() {
   
   console.log('Exiting XR mode');
   state.isXRMode = false;
+
+    // Update UI immediately
+    elements.viewXRBtn.style.display = 'flex';
+    elements.exitXRBtn.style.display = 'none';
+    
   
   // Stop trying to communicate with the iframe
   state.exitingXR = true;
@@ -597,11 +605,12 @@ async function exitXRMode() {
 function completeExitXRMode(videoTime) {
   console.log('Completing XR exit');
   state.exitingXR = false;
+  state.isXRMode = false; // Ensure state is clean
   
   // Update UI
   elements.audioContent.style.display = 'flex';
   elements.xrContent.style.display = 'none';
-  elements.viewXRBtn.style.display = 'block';
+  elements.viewXRBtn.style.display = 'flex';
   elements.exitXRBtn.style.display = 'none';
   
   // Clean up iframe
@@ -743,6 +752,7 @@ function setupXRScene(videoUrl) {
   `;
   
   iframe.srcdoc = aframeHTML;
+  iframe.style.zIndex = '100'; // Ensure iframe stays below buttons
   state.iframeReady = false;
   
 }
@@ -1040,13 +1050,16 @@ async function loadTrack(index, shouldAutoplay = false) {
   // elements.audioElement.playbackRate = 1;
   // elements.speedBtn.textContent = '1x';
 
-      // Update XR button visibility - only if not in XR mode
-      if (!state.isXRMode) {
-          const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
-          elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
-          elements.exitXRBtn.style.display = 'none';
-      }
+      // // Update XR button visibility - only if not in XR mode
+      // if (!state.isXRMode) {
+      //     const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
+      //     elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
+      //     elements.exitXRBtn.style.display = 'none';
+      // }
 
+      // Always show/hide based on XR mode state
+elements.viewXRBtn.style.display = state.isXRMode ? 'none' : 'flex';
+elements.exitXRBtn.style.display = state.isXRMode ? 'flex' : 'none';
 
 
   // Wait for audio to be ready
@@ -1098,6 +1111,7 @@ function togglePlaylist() {
 
 
 /************************** DEVICE ORIENTATION ******************************* */
+
 
 
 // Device orientation
