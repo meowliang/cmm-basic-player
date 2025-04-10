@@ -113,6 +113,7 @@ p {
     border-radius: 8px;
     text-align: center;
     animation: fadeIn 0.8s ease-out;
+
 }
 
 @keyframes fadeIn {
@@ -165,7 +166,7 @@ p {
 
   .overlay-btns {
     display: flex;
-
+    flex-direction: column;
   }
 
 .overlay-btn {
@@ -176,6 +177,11 @@ p {
     font-size: 24px;
     border-radius: 12px;
     margin: 16px;
+}
+
+#skipMotionBtn {
+    background: none;
+
 }
 
 .permission-feedback {
@@ -623,6 +629,69 @@ p {
     .content-section {
         height: 320px;
     }
+
+    .overlay {
+        max-height: 100vh;
+    }
+
+
+.overlay-content {
+    /* max-width: 500px; */
+    font-size: 1rem;
+}
+
+.overlay-content > p {
+    margin: 12px;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.overlay-content > h2 {
+    font-size: 1.2rem;
+}
+
+.permission-steps {
+    margin: 12px 24px;
+    padding-left: 12px;
+  }
+
+  .permission-steps > p {
+    margin-bottom: 8px;
+  }
+  
+  
+  .permission-steps li {
+    margin-bottom: 4px;
+    line-height: 1.2;
+    font-size: 0.9rem;
+  }
+
+.feature-list {
+    margin: 12px 0;
+  }
+  
+  .feature-item {
+    padding: 4px;
+  }
+  
+  .feature-item i {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  
+  .feature-item span {
+    font-size: 0.8rem;
+  }
+
+.overlay-btn {
+    padding: 12px 12px;
+    font-size: 1rem;
+    margin: 8px;
+}
+
+#skipMotionBtn > p {
+    font-size: 0.9rem;
+}
 
     .album-art {
         width: 300px;
