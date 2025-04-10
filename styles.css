@@ -72,9 +72,9 @@ h1 {
 }
 
 h2 {
-    font-family: 'GothicA1';
-    font-weight: bold;
-    font-size: 1.2rem;
+    font-family: 'Figtree';
+    font-weight: 500;
+    font-size: 1.6rem;
 }
 
 p {
@@ -479,19 +479,18 @@ p {
     left: 1rem; */
     color: var(--creme);
     z-index: 10;
-    background: rgba(0, 0, 0, 0.5);
     padding: 0.5rem 1rem;
     border-radius: 4px;
 }
 
 .track-info h2 {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     margin: 0;
 }
 
 .track-info p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 1rem;
     opacity: 0.8;
 }
 
