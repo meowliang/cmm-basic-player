@@ -88,11 +88,13 @@
                 <!-- Unified Controls -->
                 <div class="player-controls">
                     <button id="menuBtn" class="control-btn"><i class="fas fa-bars"></i></button>
-                    <button id="prevBtn" class="control-btn"><i class="fas fa-backward"></i></button>
-                    <button id="playPauseBtn" class="control-btn">
-                        <span class="play-icon"><i class="fas fa-play"></i></span>
-                    </button>
-                    <button id="nextBtn" class="control-btn"><i class="fas fa-forward"></i></button>
+                    <div class="center-controls">
+                        <button id="prevBtn" class="control-btn"><i class="fas fa-backward"></i></button>
+                        <button id="playPauseBtn" class="control-btn">
+                            <span class="play-icon"><i class="fas fa-play"></i></span>
+                        </button>
+                        <button id="nextBtn" class="control-btn"><i class="fas fa-forward"></i></button>
+                        </div>
                                             <!-- Mode Switch -->
                                             <div class="mode-switch">
                                                 <button id="viewXRBtn" class="control-btn"><p>View 360°</p></button>
@@ -119,14 +121,16 @@
         </div>
 
         <!-- Playlist -->
-        <div id="playlistContainer" class="playlist-container">
-            <div class="playlist-header">
-                <h2>Chapters</h2>
-                <button id="playlistClose" class="close-btn">×</button>
+         <div class="playlist-container" id="playlistContainer">
+            <div class="playlist-window"></div>
+                    <div class="playlist-header">
+                        <h2>Chapters</h2>
+                        <button id="playlistClose" class="close-btn">×</button>
+                    </div>
+                    <div id="playlistTracks" class="playlist-tracks"></div>
+                </div>
             </div>
-            <div id="playlistTracks" class="playlist-tracks"></div>
         </div>
-    </div>
 
     <!-- Audio Element -->
     <audio id="audioElement" crossorigin="anonymous" preload="auto" playsinline>
