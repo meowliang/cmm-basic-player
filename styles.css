@@ -749,6 +749,7 @@ p {
     bottom: 192px;
     left: 32px;
     max-height: 420px;
+    max-width: 280px;
 }
 
 .playlist-header > h2 {

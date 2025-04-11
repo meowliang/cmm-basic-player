@@ -33,7 +33,7 @@ const elements = {
   sceneContainer: document.getElementById('sceneContainer'),
   playlistContainer: document.getElementById('playlistContainer'),
   playlistTracks: document.getElementById('playlistTracks'),
-  playlistClose: document.getElementById('playlistClose'),
+  // playlistClose: document.getElementById('playlistClose'),
   permissionOverlay: document.getElementById('permissionOverlay'),
   enableMotionBtn: document.getElementById('enableMotionBtn'),
   skipBtn: document.getElementById('skipMotionBtn'),
@@ -178,7 +178,7 @@ function setupEventListeners() {
   elements.exitXRBtn.addEventListener('click', exitXRMode);
 
   // Playlist
-  elements.playlistClose.addEventListener('click', togglePlaylist);
+  // elements.playlistClose.addEventListener('click', togglePlaylist);
 
   // Device orientation
   elements.enableMotionBtn.addEventListener('click', function() {
