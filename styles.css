@@ -745,6 +745,27 @@ p {
     margin: 8px;
 }
 
+.playlist-container {
+    bottom: 192px;
+    left: 32px;
+    max-height: 420px;
+}
+
+.playlist-header > h2 {
+    font-size: 1.2rem;
+}
+
+.playlist-track > div > p {
+    font-size: 1rem;
+    line-height: 1.8rem;
+}
+
+
+.player-controls {
+    margin-bottom: 28px;
+}
+
+
 .mode-switch .control-btn {
     background: rgba(255,253,236, 0.9);
     width: 140px;
