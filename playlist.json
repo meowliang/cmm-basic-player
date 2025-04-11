@@ -202,7 +202,7 @@
       },
       {
         "chapter": 21,
-        "title": "Remebering a Buried History",
+        "title": "Remembering a Buried History",
         "audio_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-21.mp3",
         "duration": "3:54:00",
         "artwork_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-21.png",
@@ -213,9 +213,9 @@
       {
         "chapter": 22,
         "title": "Thank you",
-        "audio_url": "",
+        "audio_url": "https://cmm-cloud-storage.s3.us-east-2.amazonaws.com/2025-03-14-CHINATOWN-AUDIO/2025-03-14-CHINATOWN-MP3S/2025-03-14-CHINATOWN-013-COMPRESSED.mp3",
         "duration": "0:48:00",
-        "artwork_url": "",
+        "artwork_url": "https://cmm-cloud-storage.s3.us-east-2.amazonaws.com/2025-03-12-CHINATOWN-AUDIOTOUR/2025-03-12-CHINATOWN-ARTWORK/013+Block-CalMigration-logo-Off-White.png",
         "playlist": "Ni de Aquí, Ni de Allá",
         "IsAR": false,
         "XR_Scene": ""
