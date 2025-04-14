@@ -33,7 +33,6 @@ const elements = {
   sceneContainer: document.getElementById('sceneContainer'),
   playlistContainer: document.getElementById('playlistContainer'),
   playlistTracks: document.getElementById('playlistTracks'),
-  // playlistClose: document.getElementById('playlistClose'),
   permissionOverlay: document.getElementById('permissionOverlay'),
   enableMotionBtn: document.getElementById('enableMotionBtn'),
   skipBtn: document.getElementById('skipMotionBtn'),
@@ -216,25 +215,6 @@ function setupEventListeners() {
       }
   });
 
-//     // Keyboard shortcuts
-// document.addEventListener('keydown', (e) => {
-//     if (e.code === 'Space') {
-//         e.preventDefault();
-//         togglePlayPause();
-//     } else if (e.code === 'ArrowRight') {
-//         playNextTrack();
-//     } else if (e.code === 'ArrowLeft') {
-//         playPreviousTrack();
-//     } else if (e.code === 'KeyM') {
-//         toggleMute();
-//     } else if (e.code === 'BracketRight') {
-//         elements.audioElement.currentTime += 5;
-//     } else if (e.code === 'BracketLeft') {
-//         elements.audioElement.currentTime -= 5;
-//     } else if (e.code === 'KeyS') {
-//         togglePlaybackSpeed();
-//     }
-// });
 
 }
 
@@ -569,17 +549,6 @@ function setupXRScene(videoUrl) {
   
 }
 
-                  //   // iOS requires direct user interaction to play video
-                  //   function handleFirstInteraction() {
-                  //     document.removeEventListener('touchstart', handleFirstInteraction);
-                  //     document.removeEventListener('click', handleFirstInteraction);
-                      
-                  //     video.play().catch(e => console.error('Video play error:', e));
-                  // }
-                  
-                  // document.addEventListener('touchstart', handleFirstInteraction, { once: true });
-                  // document.addEventListener('click', handleFirstInteraction, { once: true });
-
 function postMessageToIframe(message) {
   if (!state.iframeReady) {
     state.pendingMessages.push(message); // Queue messages
@@ -687,9 +656,6 @@ async function playPreviousTrack() {
       console.error('Error autoplaying previous track:', error);
   }
 
-  // if (state.isPlaying) {
-  //     elements.audioElement.play().catch(console.error);
-  // }
 }
 
 
@@ -859,16 +825,6 @@ async function loadTrack(index, shouldAutoplay = false) {
   elements.trackArtist.textContent = `Ni de Aquí, Ni de Allá`;
   elements.duration.textContent = track.duration || '0:00';
 
-  // elements.audioElement.playbackRate = 1;
-  // elements.speedBtn.textContent = '1x';
-
-      // // Update XR button visibility - only if not in XR mode
-      // if (!state.isXRMode) {
-      //     const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
-      //     elements.viewXRBtn.style.display = showXRButton ? 'block' : 'none';
-      //     elements.exitXRBtn.style.display = 'none';
-      // }
-
 // Show View 360° button only if track has XR content AND we're not in XR mode
 const showXRButton = track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "";
 elements.viewXRBtn.style.display = (showXRButton && !state.isXRMode) ? 'flex' : 'none';
@@ -899,14 +855,7 @@ elements.exitXRBtn.style.display = state.isXRMode ? 'flex' : 'none';
   preloadAdjacentXRVideos(index).catch(console.error);
 
   updatePlayPauseButton();
-  // togglePlaylist();
 
-      // // Preload video metadata if XR is available
-      // if (track.IsAR && track.XR_Scene) {
-      //     const video = document.createElement('video');
-      //     video.src = track.XR_Scene;
-      //     video.load();
-      // }
 }
 
 function togglePlaylist() {

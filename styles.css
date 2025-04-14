@@ -639,14 +639,6 @@ p {
     align-items: center;
 }
 
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #333;
-}
-
 .xr-badge {
     background: var(--navy);
     color: var(--creme);
@@ -785,4 +777,44 @@ p {
         width: 300px;
         height: 300px;
     }
+}
+
+@media (max-width: 400px) {
+
+    
+    .album-art {
+        width: 200px;
+        height: 200px;
+        position: fixed;
+        top: 40px;
+    }
+
+    .track-info {
+        position: fixed;
+        top: 248px;
+    }
+
+    .track-info > h2 {
+        font-size: 1.2rem;
+    }
+
+    .track-info > p {
+        font-size: 1rem;
+    }
+        
+    .mode-switch {
+        bottom: 148px;
+    }
+    
+    .control-btn {
+        font-size: 1rem;
+        width: 36px;
+        height: 36px;
+    }
+
+    .player-container {
+        margin: 12px;
+    }
+
+
 }
