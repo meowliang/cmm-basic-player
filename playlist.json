@@ -63,11 +63,21 @@
     {
       "chapter": 7,
       "title": "Opening Night",
-      "audio_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-03-15-DTLA-CH-7.mp3",
+      "audio_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-04-21-DTLA-AUDIO-SHORTER/Chapter+7+Opening+Night.mp3",
+      "artwork_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-04-14-DTLA-ARTWORK-RESIZED/2025-03-15-DTLA-ART-CH-7.jpg",
+      "playlist": "Ni de Aquí, Ni de Allá",
+      "IsAR": false,
+      "XR_Scene": "",
+      "duration": "1:54"
+    },
+    {
+      "chapter": 7.5,
+      "title": "The Big Fiesta",
+      "audio_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-AUDIO/2025-04-21-DTLA-AUDIO-SHORTER/Chapter+7b+The+Big+Fiesta.mp3",
       "artwork_url": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-04-14-DTLA-ARTWORK-RESIZED/2025-03-15-DTLA-ART-CH-7.jpg",
       "playlist": "Ni de Aquí, Ni de Allá",
       "IsAR": true,
-      "XR_Scene": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-10-DTLA-XR-CHAPTERS/2025-04-10-DTLA-XR-7-low-1200.mp4",
+      "XR_Scene": "https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-04-10-DTLA-XR-CHAPTERS/2025-04-21-DTLA-XR-7b-low.mp4",
       "duration": "1:54"
     },
     {

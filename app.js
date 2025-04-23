@@ -54,6 +54,14 @@ async function initializePlayer() {
 
       await loadPlaylistData();
 
+        // Initialize tour progress tracking
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'event': 'tour_started',
+  'tour_name': 'Ni de Aquí, Ni de Allá',
+  'total_chapters': playlist.tracks.length
+});
+
       setupEventListeners();
       populatePlaylist();
       setupAudioElement();
@@ -221,6 +229,17 @@ function setupEventListeners() {
 // Audio element setup
 function setupAudioElement() {
   elements.audioElement.addEventListener('ended', () => {
+    const currentChapter = playlist.tracks[state.currentTrack].chapter;
+    const totalChapters = playlist.tracks.length;
+    
+    if (currentChapter === totalChapters) {
+      window.dataLayer.push({
+        'event': 'tour_completed',
+        'last_chapter': currentChapter,
+        'tour_duration': calculateTotalTourDuration() // Implement this function
+      });
+    }
+
       state.isPlaying = false;
       updatePlayPauseButton();
       // Play next track in audio mode
@@ -231,6 +250,24 @@ function setupAudioElement() {
       elements.duration.textContent = formatTime(elements.audioElement.duration);
   });
 }
+
+function calculateTotalTourDuration() {
+  let totalSeconds = 0;
+  playlist.tracks.forEach(track => {
+    const [mins, secs] = track.duration.split(':').map(Number);
+    totalSeconds += (mins * 60) + secs;
+  });
+  return formatDuration(totalSeconds);
+}
+
+function formatDuration(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
+
+
 
 
 
@@ -319,6 +356,13 @@ async function preloadAdjacentXRVideos(currentIndex) {
 
 async function enterXRMode() {
   const currentTrack = playlist.tracks[state.currentTrack];
+
+    // Track 360° button click
+    window.dataLayer.push({
+      'event': 'view_360_clicked',
+      'track_title': currentTrack.title,
+      'track_chapter': currentTrack.chapter
+    });
   
   if (!currentTrack.IsAR || !currentTrack.XR_Scene) {
       console.warn("No XR content available");
@@ -565,6 +609,13 @@ function postMessageToIframe(message) {
 function togglePlayPause() {
   state.isPlaying = !state.isPlaying;
   updatePlayPauseButton();
+
+    // Track play/pause events
+    // window.dataLayer.push({
+    //   'event': state.isPlaying ? 'audio_play' : 'audio_pause',
+    //   'track_title': playlist.tracks[state.currentTrack].title,
+    //   'track_chapter': playlist.tracks[state.currentTrack].chapter
+    // });
   
   if (state.isPlaying) {
       elements.audioElement.play().catch(console.error);
@@ -756,6 +807,32 @@ function updateProgress() {
       const progressPercent = (currentTime / duration) * 100;
       elements.progress.style.width = `${progressPercent}%`;
       elements.currentTime.textContent = formatTime(currentTime);
+
+    // Track progress milestones
+    if (progressPercent >= 25 && progressPercent < 26) {
+      window.dataLayer.push({
+        'event': 'audio_25percent',
+        'track_title': playlist.tracks[state.currentTrack].title
+      });
+    }
+    if (progressPercent >= 50 && progressPercent < 51) {
+      window.dataLayer.push({
+        'event': 'audio_50percent',
+        'track_title': playlist.tracks[state.currentTrack].title
+      });
+    }
+    if (progressPercent >= 75 && progressPercent < 76) {
+      window.dataLayer.push({
+        'event': 'audio_75percent',
+        'track_title': playlist.tracks[state.currentTrack].title
+      });
+    }
+    if (progressPercent >= 99) { // Use 99 to avoid multiple triggers
+      window.dataLayer.push({
+        'event': 'audio_complete',
+        'track_title': playlist.tracks[state.currentTrack].title
+      });
+    }
   }
   
   // Sync video time if in XR mode
@@ -790,7 +867,7 @@ function updatePlayPauseButton() {
 function populatePlaylist() {
   elements.playlistTracks.innerHTML = playlist.tracks.map((track, index) => `
       <div class="playlist-track" data-index="${index}">
-          <div><p>${track.title}</p></div>
+          <div><p>${track.chapter}. ${track.title}</p></div>
 
              ${track.IsAR && track.XR_Scene && track.XR_Scene.trim() !== "" ? 
             '<span class="xr-badge">360°</span>' : ''}
@@ -807,6 +884,40 @@ function populatePlaylist() {
 }
 
 async function loadTrack(index, shouldAutoplay = false) {
+
+  const newChapter = playlist.tracks[index].chapter;
+  const totalChapters = playlist.tracks.length;
+  
+  // Calculate overall progress
+  const tourProgress = Math.round((newChapter / totalChapters) * 100);
+  
+  // Track chapter change
+  window.dataLayer.push({
+    'event': 'chapter_started',
+    'chapter_number': newChapter,
+    'chapter_title': playlist.tracks[index].title,
+    'tour_progress_percent': tourProgress
+  });
+
+  // Track milestone completions
+  if (tourProgress >= 25 && tourProgress < 26) {
+    window.dataLayer.push({
+      'event': 'tour_25percent',
+      'current_chapter': newChapter
+    });
+  }
+  if (tourProgress >= 50 && tourProgress < 51) {
+    window.dataLayer.push({
+      'event': 'tour_50percent',
+      'current_chapter': newChapter
+    });
+  }
+  if (tourProgress >= 75 && tourProgress < 76) {
+    window.dataLayer.push({
+      'event': 'tour_75percent',
+      'current_chapter': newChapter
+    });
+  }
   
   const track = playlist.tracks[index];
   if (!track) return; // Safety check
@@ -822,7 +933,7 @@ async function loadTrack(index, shouldAutoplay = false) {
   elements.audioElement.src = track.audio_url;
   elements.albumArt.src = track.artwork_url;
   elements.trackTitle.textContent = `Chapter ${track.chapter}: ${track.title}`;
-  elements.trackArtist.textContent = `Ni de Aquí, Ni de Allá`;
+  elements.trackArtist.textContent = `${track.playlist}`;
   elements.duration.textContent = track.duration || '0:00';
 
 // Show View 360° button only if track has XR content AND we're not in XR mode

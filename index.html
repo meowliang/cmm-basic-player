@@ -8,9 +8,14 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-BKH8BVSV23"></script>
-
-<script type="text/javascript">window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('set', 'developer_id.dZGVlNj', true);gtag('config', 'G-BKH8BVSV23');</script><!-- Google Tag Manager -->
+        <!-- Google Tag Manager for CalMigration.org -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-MB462RLZ');</script>
+        <!-- End Google Tag Manager -->
+    </head>
 </head>
 <body>
     <!-- Permission Overlay -->
@@ -71,7 +76,7 @@
                     <!-- Audio Content -->
                     <div id="audioContent" class="content-section">
                         <div class="album-art">
-                            <img id="albumArt" src="https://cmm-cloud-2.s3.us-west-1.amazonaws.com/WALKING+TOURS/2025-03-15-DTLA-WALKINGTOUR/2025-03-15-DTLA-ART/2025-03-15-DTLA-ART-CH-1.jpg" alt="Album Art">
+                            <img id="albumArt" src="" alt="Album Art">
                         </div>
                         <div class="track-info">
                             <h2 id="trackTitle"></h2>
@@ -91,18 +96,11 @@
                 <!-- Unified Controls -->
                 <div class="player-controls">
                     <button id="menuBtn" class="control-btn"><i class="fas fa-bars"></i></button>
-                    <div class="center-controls">
-                        <button id="prevBtn" class="control-btn"><i class="fas fa-backward"></i></button>
-                        <button id="playPauseBtn" class="control-btn">
-                            <span class="play-icon"><i class="fas fa-play"></i></span>
-                        </button>
-                        <button id="nextBtn" class="control-btn"><i class="fas fa-forward"></i></button>
-                        </div>
-                        <div class="volume-control">
-                            <button id="muteBtn" class="control-btn"><i class="fas fa-volume-mute"></i></button>
-                            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-                            <button id="speedBtn" class="control-btn">1x</button>
-                        </div>
+                    <button id="prevBtn" class="control-btn"><i class="fas fa-backward"></i></button>
+                    <button id="playPauseBtn" class="control-btn">
+                        <span class="play-icon"><i class="fas fa-play"></i></span>
+                    </button>
+                    <button id="nextBtn" class="control-btn"><i class="fas fa-forward"></i></button>
                                             <!-- Mode Switch -->
                                             <div class="mode-switch">
                                                 <button id="viewXRBtn" class="control-btn"><p>View 360°</p></button>
@@ -117,7 +115,11 @@
                         </div>
                         <span id="duration"></span>
                     </div>
-
+                    <div class="volume-control">
+                        <button id="muteBtn" class="control-btn"><i class="fas fa-volume-mute"></i></button>
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                        <button id="speedBtn" class="control-btn">1x</button>
+                    </div>
                 </div>
 
 
@@ -125,19 +127,17 @@
         </div>
 
         <!-- Playlist -->
-         <div class="playlist-container" id="playlistContainer">
-            <div class="playlist-window"></div>
-                    <div class="playlist-header">
-                        <h2>Chapters</h2>
-                    </div>
-                    <div id="playlistTracks" class="playlist-tracks"></div>
-                </div>
+        <div id="playlistContainer" class="playlist-container">
+            <div class="playlist-header">
+                <h2>Chapters</h2>
             </div>
+            <div id="playlistTracks" class="playlist-tracks"></div>
         </div>
+    </div>
 
     <!-- Audio Element -->
     <audio id="audioElement" crossorigin="anonymous" preload="auto" playsinline>
-        <source type="audio/mpeg">
+        <source src="" type="audio/mpeg">
     </audio>
 
     <script type="module" src="app.js"></script>
