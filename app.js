@@ -234,7 +234,8 @@ function setupAudioElement() {
     
     if (currentChapter === totalChapters) {
       window.dataLayer.push({
-        'event': 'tour_completed',
+        'event': 'tour_ended',
+        'tour_name': 'Ni de Aquí, Ni de Allá',
         'last_chapter': currentChapter,
         'tour_duration': calculateTotalTourDuration() // Implement this function
       });
@@ -411,6 +412,16 @@ async function enterXRMode() {
 
 async function exitXRMode() {
   if (!state.isXRMode) return;
+
+  const currentTrack = playlist.tracks[state.currentTrack];
+
+      // Track exit 360° button click
+      window.dataLayer.push({
+        'event': 'exit_360_clicked',
+        'track_title': currentTrack.title,
+        'track_chapter': currentTrack.chapter
+      });
+    
   
   console.log('Exiting XR mode');
   state.isXRMode = false;
@@ -830,6 +841,7 @@ function updateProgress() {
     if (progressPercent >= 99) { // Use 99 to avoid multiple triggers
       window.dataLayer.push({
         'event': 'audio_complete',
+        'tour_name': 'Ni de Aquí, Ni de Allá',
         'track_title': playlist.tracks[state.currentTrack].title
       });
     }
@@ -894,29 +906,39 @@ async function loadTrack(index, shouldAutoplay = false) {
   // Track chapter change
   window.dataLayer.push({
     'event': 'chapter_started',
+    'tour_name': 'Ni de Aquí, Ni de Allá',
     'chapter_number': newChapter,
     'chapter_title': playlist.tracks[index].title,
     'tour_progress_percent': tourProgress
   });
 
   // Track milestone completions
-  if (tourProgress >= 25 && tourProgress < 26) {
+  if (tourProgress >= 25 && tourProgress < 30) {
     window.dataLayer.push({
       'event': 'tour_25percent',
+      'tour_name': 'Ni de Aquí, Ni de Allá',
       'current_chapter': newChapter
     });
   }
-  if (tourProgress >= 50 && tourProgress < 51) {
+  if (tourProgress >= 50 && tourProgress < 55) {
     window.dataLayer.push({
       'event': 'tour_50percent',
+      'tour_name': 'Ni de Aquí, Ni de Allá',
       'current_chapter': newChapter
     });
   }
-  if (tourProgress >= 75 && tourProgress < 76) {
+  if (tourProgress >= 75 && tourProgress < 80) {
     window.dataLayer.push({
       'event': 'tour_75percent',
+      'tour_name': 'Ni de Aquí, Ni de Allá',
       'current_chapter': newChapter
     });
+  }
+  if (tourProgress > 95) {
+    window.dataLayer.push({
+      'event': 'tour_complete',
+      'tour_name': 'Ni de Aquí, Ni de Allá',
+    })
   }
   
   const track = playlist.tracks[index];
