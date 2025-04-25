@@ -361,6 +361,7 @@ async function enterXRMode() {
     // Track 360° button click
     window.dataLayer.push({
       'event': 'view_360_clicked',
+      'tour_name': playlist.playlist_name,
       'track_title': currentTrack.title,
       'track_chapter': currentTrack.chapter
     });
@@ -418,6 +419,7 @@ async function exitXRMode() {
       // Track exit 360° button click
       window.dataLayer.push({
         'event': 'exit_360_clicked',
+        'tour_name': playlist.playlist_name,
         'track_title': currentTrack.title,
         'track_chapter': currentTrack.chapter
       });
@@ -840,9 +842,9 @@ function updateProgress() {
     }
     if (progressPercent >= 99) { // Use 99 to avoid multiple triggers
       window.dataLayer.push({
-        'event': 'audio_complete',
+        'event': 'chapter_complete',
         'tour_name': playlist.playlist_name,
-        'track_title': playlist.tracks[state.currentTrack].title
+        'chapter_title': playlist.tracks[state.currentTrack].title
       });
     }
   }
