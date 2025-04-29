@@ -903,7 +903,7 @@ async function loadTrack(index, shouldAutoplay = false) {
   const totalChapters = playlist.tracks.length;
   
   // Calculate overall progress
-  const tourProgress = Math.round((newChapter / totalChapters) * 100);
+  const tourProgress = Math.round((index / totalChapters) * 100);
   
   // Track chapter change
   window.dataLayer.push({
