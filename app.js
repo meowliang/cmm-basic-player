@@ -11,7 +11,7 @@ const state = {
   volume: 1,
   isMuted: false,
   videoElement: null,
-  isVideoSynced: false
+  isVideoSynced: false,
 };
 
 // DOM Elements
@@ -230,11 +230,10 @@ function setupEventListeners() {
 function setupAudioElement() {
   elements.audioElement.addEventListener('ended', () => {
     const currentChapter = playlist.tracks[state.currentTrack].chapter;
-    const totalChapters = playlist.tracks.length;
     
-    if (currentChapter === totalChapters) {
+    if (state.currentTrack === playlist.tracks.length - 1) {
       window.dataLayer.push({
-        'event': 'tour_ended',
+        'event': 'tour_complete',
         'tour_name': playlist.playlist_name,
         'last_chapter': currentChapter,
         'tour_duration': calculateTotalTourDuration() // Implement this function
@@ -811,11 +810,13 @@ function syncVideoWithAudio() {
   }
 }
 
+let chapterCompleteFired = false;
+
 // Update progress bar
 function updateProgress() {
   const currentTime = elements.audioElement.currentTime;
   const duration = elements.audioElement.duration || playlist.tracks[state.currentTrack].duration;
-  
+
   if (duration) {
       const progressPercent = (currentTime / duration) * 100;
       elements.progress.style.width = `${progressPercent}%`;
@@ -840,12 +841,13 @@ function updateProgress() {
         'track_title': playlist.tracks[state.currentTrack].title
       });
     }
-    if (progressPercent >= 99) { // Use 99 to avoid multiple triggers
+    if (progressPercent >= 99 && !chapterCompleteFired) { // Use 99 to avoid multiple triggers
       window.dataLayer.push({
         'event': 'chapter_complete',
         'tour_name': playlist.playlist_name,
         'chapter_title': playlist.tracks[state.currentTrack].title
       });
+      chapterCompleteFired = true;
     }
   }
   
@@ -899,6 +901,8 @@ function populatePlaylist() {
 
 async function loadTrack(index, shouldAutoplay = false) {
 
+  chapterCompleteFired = false;
+
   const newChapter = playlist.tracks[index].chapter;
   const totalChapters = playlist.tracks.length;
   
@@ -935,12 +939,6 @@ async function loadTrack(index, shouldAutoplay = false) {
       'tour_name': playlist.playlist_name,
       'current_chapter': newChapter
     });
-  }
-  if (tourProgress > 95) {
-    window.dataLayer.push({
-      'event': 'tour_complete',
-      'tour_name': playlist.playlist_name,
-    })
   }
   
   const track = playlist.tracks[index];
