@@ -810,7 +810,20 @@ function syncVideoWithAudio() {
   }
 }
 
-let chapterCompleteFired = false;
+// State for tracking progress events
+const progressState = {
+  chapterCompleteFired: false,
+  percent25Fired: false,
+  percent50Fired: false,
+  percent75Fired: false
+};
+
+function resetProgressState() {
+  progressState.chapterCompleteFired = false;
+  progressState.percent25Fired = false;
+  progressState.percent50Fired = false;
+  progressState.percent75Fired = false;
+}
 
 // Update progress bar
 function updateProgress() {
@@ -823,31 +836,38 @@ function updateProgress() {
       elements.currentTime.textContent = formatTime(currentTime);
 
     // Track progress milestones
-    if (progressPercent >= 25 && progressPercent < 26) {
+    if (progressPercent >= 25 && !progressState.percent25Fired) {
+      console.log("25% complete");
+      progressState.percent25Fired = true;
       window.dataLayer.push({
         'event': 'audio_25percent',
         'track_title': playlist.tracks[state.currentTrack].title
       });
     }
-    if (progressPercent >= 50 && progressPercent < 51) {
+    if (progressPercent >= 50 && !progressState.percent50Fired) {
+      console.log("50% complete");
+      progressState.percent50Fired = true;
       window.dataLayer.push({
         'event': 'audio_50percent',
         'track_title': playlist.tracks[state.currentTrack].title
       });
     }
-    if (progressPercent >= 75 && progressPercent < 76) {
+    if (progressPercent >= 75 && !progressState.percent75Fired) {
+      console.log("75% complete");
+      progressState.percent75Fired = true;
       window.dataLayer.push({
         'event': 'audio_75percent',
         'track_title': playlist.tracks[state.currentTrack].title
       });
     }
-    if (progressPercent >= 99 && !chapterCompleteFired) { // Use 99 to avoid multiple triggers
+    if (progressPercent >= 99.5 && (duration - currentTime) < 1 && !progressState.chapterCompleteFired) { // Use 99 to avoid multiple triggers
+      console.log("chapter complete");
+      progressState.chapterCompleteFired = true;
       window.dataLayer.push({
         'event': 'chapter_complete',
         'tour_name': playlist.playlist_name,
         'chapter_title': playlist.tracks[state.currentTrack].title
       });
-      chapterCompleteFired = true;
     }
   }
   
@@ -901,7 +921,7 @@ function populatePlaylist() {
 
 async function loadTrack(index, shouldAutoplay = false) {
 
-  chapterCompleteFired = false;
+  resetProgressState();
 
   const newChapter = playlist.tracks[index].chapter;
   const totalChapters = playlist.tracks.length;
