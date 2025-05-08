@@ -534,28 +534,12 @@ console.log('Parent element:', document.body);
                   const video = document.getElementById('xrVideo');
 
 
-                  
-                  
-                  // Notify parent when ready
-                  function notifyReady() {
-                      if (window.parent.state && window.parent.state.exitingXR) return;
-                      window.parent.postMessage({ 
-                          type: 'videoReady',
-                          duration: video.duration
-                      }, '*');
-                  }
-                  
-                  video.addEventListener('canplaythrough', notifyReady);
-                  if (video.readyState > 3) notifyReady();
-                  
-                  // Handle video ended event
-                  video.addEventListener('ended', () => {
-                      window.parent.postMessage({
-                          type: 'videoEnded'
-                      }, '*');
-                  });
-                  
-                  // Handle parent messages
+                    // Immediate time response
+  function getCurrentTime() {
+    return video.readyState > 0 ? video.currentTime : 0;
+  }
+
+                    // Handle parent messages
                   window.addEventListener('message', (event) => {
                       if (!video) return;
                       
@@ -577,6 +561,45 @@ console.log('Parent element:', document.body);
                               }, '*');
                               break;
                       }
+
+                        // Respond immediately to time requests
+  window.addEventListener('message', (event) => {
+    if (event.data.action === 'getCurrentTime') {
+      window.parent.postMessage({
+        type: 'currentTime',
+        time: getCurrentTime()
+      }, '*');
+    }
+  });
+
+    // Send ready event with current time
+  function notifyReady() {
+    window.parent.postMessage({
+      type: 'videoReady',
+      time: getCurrentTime()
+    }, '*');
+  }
+                  
+                  // Notify parent when ready
+                  function notifyReady() {
+                      if (window.parent.state && window.parent.state.exitingXR) return;
+                      window.parent.postMessage({ 
+                          type: 'videoReady',
+                          duration: video.duration
+                      }, '*');
+                  }
+                  
+                  video.addEventListener('canplaythrough', notifyReady);
+                  if (video.readyState > 3) notifyReady();
+                  
+                  // Handle video ended event
+                  video.addEventListener('ended', () => {
+                      window.parent.postMessage({
+                          type: 'videoEnded'
+                      }, '*');
+                  });
+                  
+
                   });
               </script>
           </a-scene>
