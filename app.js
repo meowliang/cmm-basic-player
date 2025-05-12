@@ -159,7 +159,9 @@ function handleIframeMessages(event) {
           });
       }
   } else if (event.data.type === 'currentTime') {
+    if (state.exitingXR) {
       completeExitXRMode(event.data.time);
+    }
   }  else if (event.data.type === 'videoEnded') {
       // Video ended - reset time to 0 and play next track
       elements.audioElement.currentTime = 0;
@@ -371,32 +373,22 @@ async function enterXRMode() {
       return;
   }
 
+   // Show loading state
+   const loadingOverlay = document.createElement('div');
+   loadingOverlay.className = 'xr-loading-overlay';
+   loadingOverlay.innerHTML = `
+      <div class="xr-loading-message" style="color: white; text-align: center;">
+      Loading 360° experience...<br>
+      This may take up to 20 seconds on slower connections
+    </div>
+    <div class="xr-loading-spinner"></div>
+   `;
+   document.body.appendChild(loadingOverlay);
 
-
-  // Show loading state
-  const loadingOverlay = document.createElement('div');
-    loadingOverlay.className = 'xr-loading-overlay';
-    loadingOverlay.innerHTML = `
-        <div class="xr-loading-message" style="color: white; text-align: center;">
-            Loading 360° experience...<br>
-            This may take up to 20 seconds on slower connections
-        </div>
-        <div class="xr-loading-spinner"></div>
-    `;
-    document.body.appendChild(loadingOverlay);
-
-    // Right after creating the overlay:
-console.log('Loading overlay created:', loadingOverlay);
-console.log('Parent element:', document.body);
-
-
-  
   try {
-
-    
           // Update state FIRST
           state.isXRMode = true;
-          state.exitingXR = false; // Ensure this is reset
+          state.exitingXR = false;
 
                 // Setup UI
       elements.audioContent.style.display = 'none';
@@ -404,217 +396,62 @@ console.log('Parent element:', document.body);
       elements.viewXRBtn.style.display = 'none';
       elements.exitXRBtn.style.display = 'flex';
 
-        // Clear previous iframe and create new one
-    elements.xrContent.innerHTML = '';
-    const iframe = document.createElement('iframe');
-    iframe.id = 'videoFrame'; // Ensure consistent ID
-    iframe.className = 'video-frame';
-    iframe.allowFullscreen = true;
-    elements.xrContent.appendChild(iframe);
+          // Store playback state
+    const wasPlaying = !elements.audioElement.paused;
+    const currentTime = elements.audioElement.currentTime;
 
       // Preload video first
       const videoReady = await preloadXRVideo(currentTrack.XR_Scene);
       if (!videoReady) throw new Error('Video failed to load');
-      
-      // Store playback state
-      const wasPlaying = !elements.audioElement.paused;      
 
-      
-      // Setup scene
+          // Setup XR scene with callback when loaded
+    setupXRScene(videoUrl, () => {
+      // When scene is loaded, remove loading overlay
+      loadingOverlay.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(loadingOverlay);
+      }, 500);
+
+      // Sync with audio player
+      postMessageToIframe({
+        action: 'setTime',
+        time: elements.audioElement.currentTime
+      });
+
+      // // Setup scene
       // setupXRScene(currentTrack.XR_Scene);
-
-     // Set up iframe load handler BEFORE setting srcdoc
-     iframe.onload = async () => {
-      try {
-        const videoReady = await preloadXRVideo(currentTrack.XR_Scene);
-        if (!videoReady) throw new Error('Video failed to load');
-        
-        loadingOverlay.style.opacity = '0';
-        setTimeout(() => {
-          document.body.removeChild(loadingOverlay);
-        }, 500);
-
-                    // Restore playback if needed
-                    if (wasPlaying) {
-                      setTimeout(() => {
-                          postMessageToIframe({
-                              action: 'play',
-                              time: elements.audioElement.currentTime
-                          });
-                      }, 500);
-                  }
-
-        // if (!elements.audioElement.paused) {
-        //   postMessageToIframe({
-        //     action: 'play',
-        //     time: elements.audioElement.currentTime
-        //   });
-        // }
       
+      // Restore playback if needed
+      if (wasPlaying) {
+          setTimeout(() => {
+              postMessageToIframe({
+                  action: 'play',
+                  time: elements.audioElement.currentTime
+              });
+          }, 500);
+        }
+      });
 
-      } catch (error) {
-          console.error('Failed to enter XR mode:', error);
-          loadingOverlay.innerHTML = `
-          <div class="xr-loading-message" style="color: white; text-align: center;">
-            Failed to load 360° content<br>
-            <button onclick="window.location.reload()" 
-                    style="margin-top:20px;padding:10px 20px;
-                          background:var(--blue);border:none;
-                          border-radius:5px;color:white;">
-              Try Again
-            </button>
-          </div>
-        `;
-          setTimeout(() => completeExitXRMode(elements.audioElement.currentTime), 2000);
-      }
-    };
-     // Now set the iframe content
-     const hideUI = `
-     <style>
-       .a-loader-title, .a-enter-vr-button, .a-loader {
-         display: none !important;
-       }
-       body {
-         background-color: #182F48; !important;
-       }
-     </style>
-   `;
-
-          //  // DEBUGGING
-          //  const debugDelay = 5000; // 5 seconds delay for testing
-          //  await new Promise(resolve => setTimeout(resolve, debugDelay));
-   
-   iframe.srcdoc = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-      <meta name="apple-mobile-web-app-capable" content="yes">
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-          <title>360 Video</title>
-          <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-          ${hideUI}
-          <style>
-          body { margin: 0; overflow: hidden; }
-          .a-canvas { background: #000 !important; }
-          </style>
-      </head>
-      <body>
-          <a-scene device-orientation-permission-ui
-                    loading-screen="enabled: false"
-                    vr-mode-ui="enabled: false"> 
-              <a-assets>
-                  <video id="xrVideo"
-                          src="${videoUrl}"
-                         crossorigin="anonymous"
-                         playsinline
-                         webkit-playsinline
-                         muted
-                         autoplay
-                         preload="auto"
-                         xr-layer>
-                  </video>
-              </a-assets>
-              
-              <a-videosphere src="#xrVideo" rotation="0 -90 0"></a-videosphere>
-            
-      
-               <!-- Camera setup for natural movement -->
-              <a-entity position="0 1.6 0">
-                  <a-camera
-                      look-controls="pointerLockEnabled: false;
-                                  reverseMouseDrag: false;
-                                  touchEnabled: true;
-                                  magicWindowTrackingEnabled: true">
-                  </a-camera>
-                  <a-cursor></a-cursor>
-              </a-entity>
-
-              
-              <script>
-                  const video = document.getElementById('xrVideo');
-        video.muted = true; // Ensure muted
-
-                          // Force play when metadata is loaded
-        video.addEventListener('loadedmetadata', function() {
-          video.play().catch(e => console.log('Play error:', e));
-        });
-                  
-                  // Notify parent when ready
-                  function notifyReady() {
-                      if (window.parent.state && window.parent.state.exitingXR) return;
-                      window.parent.postMessage({ 
-                          type: 'videoReady',
-                          duration: video.duration
-                      }, '*');
-                  }
-                  
-                  video.addEventListener('canplaythrough', notifyReady);
-                  if (video.readyState > 3) notifyReady();
-                  
-                  // Handle video ended event
-                  video.addEventListener('ended', () => {
-                      window.parent.postMessage({
-                          type: 'videoEnded'
-                      }, '*');
-                  });
-                  
-                  // Handle parent messages
-                  window.addEventListener('message', (event) => {
-                      if (!video) return;
-                      
-                      switch(event.data.action) {
-                          case 'play':
-                              video.currentTime = event.data.time || 0;
-                              video.play().catch(e => console.log('Video play error:', e));
-                              break;
-                          case 'pause':
-                              video.pause();
-                              break;
-                          case 'setTime':
-                              video.currentTime = event.data.time;
-                              break;
-                          case 'getCurrentTime':
-                              window.parent.postMessage({
-                                  type: 'currentTime',
-                                  time: video.currentTime
-                              }, '*');
-                              break;
-                      }
-                  });
-              </script>
-          </a-scene>
-      </body>
-      </html>
-  `;
-  
-  // iframe.srcdoc = aframeHTML;
-  iframe.style.zIndex = '100'; // Ensure iframe stays below buttons
-  state.iframeReady = false;
-   
- } catch (error) {
-   console.error('Failed to enter XR mode:', error);
-   if (loadingOverlay.parentNode) {
-     loadingOverlay.innerHTML = `
-       <div class="xr-loading-message" style="color: white;">
-         Failed to initialize 360° viewer<br>
-         <button onclick="window.location.reload()" 
-                 style="margin-top:20px;padding:10px 20px;
-                        background:var(--blue);border:none;
-                        border-radius:5px;color:white;">
-           Try Again
-         </button>
-       </div>
-     `;
-   }
- }
-
-
-
-  
+  } catch (error) {
+      console.error('Failed to enter XR mode:', error);
+         loadingOverlay.innerHTML = `
+      <div class="xr-loading-message" style="color: white; text-align: center;">
+        Failed to load 360° content<br>
+        <button onclick="window.location.reload()" 
+                style="margin-top:20px;padding:10px 20px;
+                      background:var(--blue);border:none;
+                      border-radius:5px;color:white;">
+          Try Again
+        </button>
+      </div>
+    `;
+    setTimeout(() => completeExitXRMode(elements.audioElement.currentTime), 2000);
+  }
 }
 
 async function exitXRMode() {
   if (!state.isXRMode) return;
+
   const currentTrack = playlist.tracks[state.currentTrack];
 
       // Track exit 360° button click
@@ -627,105 +464,44 @@ async function exitXRMode() {
     
   
   console.log('Exiting XR mode');
-  state.exitingXR = true;
   state.isXRMode = false;
 
     // Update UI immediately
     elements.viewXRBtn.style.display = 'flex';
     elements.exitXRBtn.style.display = 'none';
     
-      // Get current time from iframe with fallback
-  const fallbackTime = elements.audioElement.currentTime;
-  let iframeTime = null;
-
-    // Get current time from iframe
-    postMessageToIframe({ action: 'getCurrentTime' });
-
-      // 2. Setup a race between iframe response and timeout
-  await new Promise((resolve) => {
-    const timer = setTimeout(() => {
-      console.warn('Using fallback audio time');
-      completeExitXRMode(fallbackTime);
-      resolve();
-    }, 300); // Reduced timeout
-
-    const messageListener = (event) => {
-      if (event.data.type === 'currentTime') {
-        clearTimeout(timer);
-        window.removeEventListener('message', messageListener);
-        iframeTime = event.data.time;
-        completeExitXRMode(iframeTime);
-        resolve();
-      }
-    };
-
-    // Setup message listener for time response
-    // const timeListener = (event) => {
-    //   if (event.data.type === 'currentTime') {
-    //     window.removeEventListener('message', timeListener);
-    //     videoTimeReceived = true;
-    //     completeExitXRMode(event.data.time || fallbackTime);
-    //   }
-    // };
-    // window.addEventListener('message', timeListener);
-
-    window.addEventListener('message', messageListener);
-});
   
   // Stop trying to communicate with the iframe
   state.exitingXR = true;
   
-
+  // Get current time from iframe
+  postMessageToIframe({ action: 'getCurrentTime' });
   
-  // // Fallback if no response
-  // setTimeout(() => {
-  //   if (!videoTimeReceived) {
-  //     console.warn('Using fallback audio time');
-  //     completeExitXRMode(fallbackTime);
-  //   }
-  // }, 500); // Reduced timeout for better UX
+  // Set a timeout fallback
+  setTimeout(() => {
+      if (state.exitingXR) {
+          completeExitXRMode(0);
+      }
+  }, 1000);
 }
 
-
 function completeExitXRMode(videoTime) {
-  console.log('Exiting XR at time:', videoTime);
-
+  console.log('Completing XR exit');
   state.exitingXR = false;
   state.isXRMode = false; // Ensure state is clean
 
-    // Clean up iframe
-    elements.xrContent.innerHTML = '';
-
-      // Set audio position (clamp between 0 and duration)
-  const duration = elements.audioElement.duration || 0;
-  const safeTime = Math.min(videoTime, duration - 0.6); // 0.6s buffer
-
-   // Set audio position before showing audio UI
-   elements.audioElement.currentTime = Math.max(0, safeTime);
-
-     
+  const currentTrack = playlist.tracks[state.currentTrack];
+  const showXRButton = currentTrack.IsAR && currentTrack.XR_Scene && currentTrack.XR_Scene.trim() !== "";
+  
   // Update UI
   elements.audioContent.style.display = 'flex';
   elements.xrContent.style.display = 'none';
   elements.viewXRBtn.style.display = 'flex';
   elements.exitXRBtn.style.display = 'none';
-
-    // Resume playback if needed
-    if (state.isPlaying) {
-      elements.audioElement.play().catch(e => {
-        console.error('Playback error:', e);
-        // Fallback to pause state if play fails
-        state.isPlaying = false;
-        updatePlayPauseButton();
-      });
-    }
-
-  const currentTrack = playlist.tracks[state.currentTrack];
-  const showXRButton = currentTrack.IsAR && currentTrack.XR_Scene && currentTrack.XR_Scene.trim() !== "";
-
   
   
-
+  // Clean up iframe
+  elements.xrContent.innerHTML = '';
 
   // Check if we're at the end of the track
   const atEnd = videoTime >= (elements.audioElement.duration - 0.5); // 0.5 second threshold
@@ -734,154 +510,161 @@ function completeExitXRMode(videoTime) {
   const newTime = atEnd ? 0 : videoTime;
   elements.audioElement.currentTime = newTime;
   
-  // if (!atEnd) {
-  //     elements.audioElement.currentTime = videoTime;
-  //     if (state.isPlaying) {
-  //         elements.audioElement.play().catch(console.error);
-  //     }
-  // } else {
-  //     // At end - ensure paused state
-  //     elements.audioElement.currentTime = 0;
-  //     state.isPlaying = false;
-  //     updatePlayPauseButton();
-  // }
+  if (!atEnd) {
+      elements.audioElement.currentTime = videoTime;
+      if (state.isPlaying) {
+          elements.audioElement.play().catch(console.error);
+      }
+  } else {
+      // At end - ensure paused state
+      elements.audioElement.currentTime = 0;
+      state.isPlaying = false;
+      updatePlayPauseButton();
+  }
 
+    // Reset XR mode state
+    state.isXRMode = false;
 }
 
 
-// function setupXRScene(videoUrl) {
-//   // Clear previous iframe
-//   elements.xrContent.innerHTML = '';
+function setupXRScene(videoUrl, onReadyCallback) {
+  // Clear previous iframe
+  elements.xrContent.innerHTML = '';
   
-//   // Create new iframe
-//   const iframe = document.createElement('iframe');
-//   iframe.className = 'video-frame';
-//   iframe.allowFullscreen = true;
-//   elements.xrContent.appendChild(iframe);
+  // Create new iframe
+  const iframe = document.createElement('iframe');
+  iframe.id = 'videoFrame';
+  iframe.className = 'video-frame';
+  iframe.allowFullscreen = true;
+  elements.xrContent.appendChild(iframe);
 
-//       // Add CSS to hide A-Frame UI elements
-//       const hideUI = `
-//       <style>
-//           .a-loader-title, .a-enter-vr-button, .a-loader {
-//               display: none !important;
-//           }
-//           body {
-//               background-color: #000 !important;
-//           }
-//       </style>
-//   `;
+    // Add CSS to hide A-Frame UI elements
+    const hideUI = `
+    <style>
+      .a-loader-title, .a-enter-vr-button, .a-loader {
+        display: none !important;
+      }
+      body {
+        background-color: #182F48 !important;
+      }
+    </style>
+  `;
   
-//   // Set up load handler
-//   iframe.onload = () => {
-//       state.iframeReady = true;
-//       console.log('XR iframe loaded');
-//   };
-
-//   const aframeHTML = `
-//       <!DOCTYPE html>
-//       <html>
-//       <head>
-//       <meta name="apple-mobile-web-app-capable" content="yes">
-//       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-//           <title>360 Video</title>
-//           <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-//           ${hideUI}
-//           <style>
-//           body { margin: 0; overflow: hidden; }
-//           .a-canvas { background: #000 !important; }
-//           </style>
-//       </head>
-//       <body>
-//           <a-scene device-orientation-permission-ui
-//                     loading-screen="enabled"
-//                     vr-mode-ui="enabled: false"> 
-//               <a-assets>
-//                   <video id="xrVideo"
-//                           src="${videoUrl}"
-//                          crossorigin="anonymous"
-//                          playsinline
-//                          webkit-playsinline
-//                          muted
-//                          autoplay
-//                          preload="auto"
-//                          xr-layer>
-//                   </video>
-//               </a-assets>
-              
-//               <a-videosphere src="#xrVideo" rotation="0 -90 0"></a-videosphere>
-            
+    // Set up iframe content with enhanced sync
+    iframe.srcdoc = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+      <title>360 Video</title>
+      <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+      ${hideUI}
+      <style>
+        body { margin: 0; overflow: hidden; }
+        .a-canvas { background: #000 !important; }
+      </style>
+    </head>
+    <body>
+      <a-scene device-orientation-permission-ui
+               loading-screen="enabled: false"
+               vr-mode-ui="enabled: false"> 
+        <a-assets>
+          <video id="xrVideo"
+                 src="${videoUrl}"
+                 crossorigin="anonymous"
+                 playsinline
+                 webkit-playsinline
+                 muted
+                 autoplay
+                 preload="auto"
+                 xr-layer>
+          </video>
+        </a-assets>
+        
+        <a-videosphere src="#xrVideo" rotation="0 -90 0"></a-videosphere>
       
-//                <!-- Camera setup for natural movement -->
-//               <a-entity position="0 1.6 0">
-//                   <a-camera
-//                       look-controls="pointerLockEnabled: false;
-//                                   reverseMouseDrag: false;
-//                                   touchEnabled: true;
-//                                   magicWindowTrackingEnabled: true">
-//                   </a-camera>
-//                   <a-cursor></a-cursor>
-//               </a-entity>
+        <a-entity position="0 1.6 0">
+          <a-camera
+              look-controls="pointerLockEnabled: false;
+                          reverseMouseDrag: false;
+                          touchEnabled: true;
+                          magicWindowTrackingEnabled: true">
+          </a-camera>
+          <a-cursor></a-cursor>
+        </a-entity>
 
-              
-//               <script>
-//                   const video = document.getElementById('xrVideo');
+        <script>
+          const video = document.getElementById('xrVideo');
+          video.muted = true;
 
+          // Enhanced sync function
+          function syncVideo(time) {
+            if (Math.abs(video.currentTime - time) > 0.1) {
+              video.currentTime = time;
+            }
+          }
 
-                  
-                  
-//                   // Notify parent when ready
-//                   function notifyReady() {
-//                       if (window.parent.state && window.parent.state.exitingXR) return;
-//                       window.parent.postMessage({ 
-//                           type: 'videoReady',
-//                           duration: video.duration
-//                       }, '*');
-//                   }
-                  
-//                   video.addEventListener('canplaythrough', notifyReady);
-//                   if (video.readyState > 3) notifyReady();
-                  
-//                   // Handle video ended event
-//                   video.addEventListener('ended', () => {
-//                       window.parent.postMessage({
-//                           type: 'videoEnded'
-//                       }, '*');
-//                   });
-                  
-//                   // Handle parent messages
-//                   window.addEventListener('message', (event) => {
-//                       if (!video) return;
-                      
-//                       switch(event.data.action) {
-//                           case 'play':
-//                               video.currentTime = event.data.time || 0;
-//                               video.play().catch(e => console.log('Video play error:', e));
-//                               break;
-//                           case 'pause':
-//                               video.pause();
-//                               break;
-//                           case 'setTime':
-//                               video.currentTime = event.data.time;
-//                               break;
-//                           case 'getCurrentTime':
-//                               window.parent.postMessage({
-//                                   type: 'currentTime',
-//                                   time: video.currentTime
-//                               }, '*');
-//                               break;
-//                       }
-//                   });
-//               </script>
-//           </a-scene>
-//       </body>
-//       </html>
-//   `;
+          // Notify parent when ready
+          function notifyReady() {
+            window.parent.postMessage({ 
+              type: 'aframeReady'
+            }, '*');
+          }
+
+          // Handle metadata loaded
+          video.addEventListener('loadedmetadata', function() {
+            notifyReady();
+          });
+
+          // Handle video ended
+          video.addEventListener('ended', () => {
+            window.parent.postMessage({
+              type: 'videoEnded'
+            }, '*');
+          });
+          
+          // Handle parent messages
+          window.addEventListener('message', (event) => {
+            if (!video) return;
+            
+            switch(event.data.action) {
+              case 'play':
+                syncVideo(event.data.time || 0);
+                video.play().catch(e => console.log('Video play error:', e));
+                break;
+              case 'pause':
+                video.pause();
+                break;
+              case 'setTime':
+                syncVideo(event.data.time);
+                break;
+              case 'getCurrentTime':
+                window.parent.postMessage({
+                  type: 'currentTime',
+                  time: video.currentTime
+                }, '*');
+                break;
+            }
+          });
+
+          // If already loaded, notify immediately
+          if (video.readyState > 3) {
+            notifyReady();
+          }
+        </script>
+      </a-scene>
+    </body>
+    </html>
+  `;
+
+  // Handle iframe load event
+  iframe.onload = () => {
+    state.iframeReady = true;
+    if (onReadyCallback) onReadyCallback();
+  };
   
-//   iframe.srcdoc = aframeHTML;
-//   iframe.style.zIndex = '100'; // Ensure iframe stays below buttons
-//   state.iframeReady = false;
-  
-// }
+}
 
 function postMessageToIframe(message) {
   if (!state.iframeReady) {
@@ -1069,7 +852,17 @@ function seekTo(e) {
           action: 'setTime',
           time: newTime
       });
+
+      // If playing, ensure video continues after seek
+    if (state.isPlaying) {
+      setTimeout(() => {
+        postMessageToIframe({
+          action: 'play',
+          time: newTime
+        });
+      }, 100);
   }
+}
 }
 
 function cleanupXRScene() {
