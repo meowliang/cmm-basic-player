@@ -479,7 +479,7 @@ function setupXRScene(videoUrl) {
           <style>body { margin: 0; overflow: hidden; }</style>
       </head>
       <body>
-          <a-scene device-orientation-permission-ui
+          <a-scene device-orientation-permission-ui=""
                     vr-mode-ui="enabled: false"> 
               <a-assets>
                   <video id="xrVideo"
