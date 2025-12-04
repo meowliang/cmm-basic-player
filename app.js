@@ -566,7 +566,7 @@ function setupXRScene(videoUrl, onReadyCallback) {
       </style>
     </head>
     <body>
-      <a-scene device-orientation-permission-ui
+      <a-scene device-orientation-permission-ui=""
                loading-screen="enabled: false"
                vr-mode-ui="enabled: false"> 
         <a-assets>
