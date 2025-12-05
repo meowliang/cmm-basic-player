@@ -480,57 +480,6 @@ function setupXRScene(videoUrl) {
       </head>
       <body>
 
-      <script>
-      // Show an overlay button that requests permission when clicked
-function showStartButton() {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = "
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  ";
-  
-  const button = document.createElement('button');
-  button.textContent = 'Start Tour (Enable Orientation)';
-  button.style.cssText = "
-    padding: 20px 40px;
-    font-size: 18px;
-    background: #007AFF;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  ";
-  
-  button.addEventListener('click', async () => {
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      const permission = await DeviceOrientationEvent.requestPermission();
-      if (permission === 'granted') {
-        overlay.remove();
-      }
-    } else {
-      overlay.remove();
-    }
-  });
-  
-  overlay.appendChild(button);
-  document.body.appendChild(overlay);
-}
-
-// Call this when iframe loads
-if (typeof DeviceOrientationEvent !== 'undefined' && 
-    typeof DeviceOrientationEvent.requestPermission === 'function') {
-  showStartButton();
-}
-
-</script>
           <a-scene device-orientation-permission-ui="enabled: true"
                     vr-mode-ui="enabled: false"> 
               <a-assets>

@@ -1,8 +1,57 @@
-<a-scene background="color: #ECECEC" keyboard-shortcuts="" screenshot="" xr-mode-ui="" device-orientation-permission-ui="">
+
+    <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iOS Orientation Test</title>
+</head>
+<body>
+  <h1>iOS Orientation Test</h1>
+  <button id="test">Request Permission & Test</button>
+  <div id="output"></div>
+  
+  <script>
+    const output = document.getElementById('output');
+    
+    document.getElementById('test').addEventListener('click', async () => {
+      output.innerHTML = '<p>Testing...</p>';
+      
+      // Request permission
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          output.innerHTML += `<p>Permission: ${permission}</p>`;
+        } catch (err) {
+          output.innerHTML += `<p>Error: ${err}</p>`;
+        }
+      }
+      
+      // Listen for events
+      let eventCount = 0;
+      window.addEventListener('deviceorientation', (e) => {
+        eventCount++;
+        output.innerHTML = `
+          <p>Events received: ${eventCount}</p>
+          <p>Alpha: ${e.alpha}</p>
+          <p>Beta: ${e.beta}</p>
+          <p>Gamma: ${e.gamma}</p>
+        `;
+      });
+      
+      setTimeout(() => {
+        if (eventCount === 0) {
+          output.innerHTML += '<p style="color: red;">❌ NO EVENTS RECEIVED</p>';
+        }
+      }, 3000);
+    });
+  </script>
+
+  <a-scene background="color: #ECECEC" keyboard-shortcuts="" screenshot="" xr-mode-ui="" device-orientation-permission-ui="">
       <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9" shadow=""></a-box>
       <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E" shadow=""></a-sphere>
       <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D" shadow=""></a-cylinder>
       <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow=""></a-plane>
     </a-scene>
-
-    
+</body>
+</html>
