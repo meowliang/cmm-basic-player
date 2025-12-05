@@ -481,62 +481,54 @@ function setupXRScene(videoUrl) {
       <body>
 
       <script>
-      // Add this to your iframe's script section, BEFORE A-Frame initializes
-
-async function requestOrientationPermission() {
-  if (typeof DeviceOrientationEvent !== 'undefined' && 
-      typeof DeviceOrientationEvent.requestPermission === 'function') {
-    
-    try {
-      const permissionState = await DeviceOrientationEvent.requestPermission();
-      
-      if (permissionState === 'granted') {
-        console.log('Orientation permission granted in iframe');
-        return true;
-      } else {
-        console.log('Orientation permission denied');
-        alert('Please enable device orientation to look around');
-        return false;
+      // Show an overlay button that requests permission when clicked
+function showStartButton() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = "
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  ";
+  
+  const button = document.createElement('button');
+  button.textContent = 'Start Tour (Enable Orientation)';
+  button.style.cssText = "
+    padding: 20px 40px;
+    font-size: 18px;
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  ";
+  
+  button.addEventListener('click', async () => {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const permission = await DeviceOrientationEvent.requestPermission();
+      if (permission === 'granted') {
+        overlay.remove();
       }
-    } catch (error) {
-      console.error('Error requesting orientation permission:', error);
-      return false;
+    } else {
+      overlay.remove();
     }
-  } else {
-    // Not iOS or permission not needed
-    console.log('No permission request needed');
-    return true;
-  }
+  });
+  
+  overlay.appendChild(button);
+  document.body.appendChild(overlay);
 }
 
-// Must be triggered by user gesture
-document.addEventListener('click', async function initOrientation(e) {
-  // Remove listener after first click
-  document.removeEventListener('click', initOrientation);
-  
-  const granted = await requestOrientationPermission();
-  
-  if (granted) {
-    // Test if orientation is now working
-    setTimeout(() => {
-      let working = false;
-      const testHandler = (event) => {
-        if (event.alpha !== null) working = true;
-      };
-      
-      window.addEventListener('deviceorientation', testHandler);
-      
-      setTimeout(() => {
-        window.removeEventListener('deviceorientation', testHandler);
-        if (!working) {
-          alert('Orientation still not working after permission granted');
-        } else {
-          console.log('Orientation working!');
-        }
-      }, 1000);
-    }, 500);
-  }
-}, { once: true });
+// Call this when iframe loads
+if (typeof DeviceOrientationEvent !== 'undefined' && 
+    typeof DeviceOrientationEvent.requestPermission === 'function') {
+  showStartButton();
+}
 
 </script>
           <a-scene device-orientation-permission-ui="enabled: true"
