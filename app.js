@@ -14,6 +14,13 @@ const state = {
   isVideoSynced: false
 };
 
+const orientationState = {
+    alpha: 0,
+    beta: 0,
+    gamma: 0,
+    isTracking: false
+};
+
 // DOM Elements
 const elements = {
   audioElement: document.getElementById('audioElement'),
@@ -480,8 +487,7 @@ function setupXRScene(videoUrl) {
       </head>
       <body>
 
-          <a-scene device-orientation-permission-ui="enabled: true"
-                    vr-mode-ui="enabled: false"> 
+          <a-scene vr-mode-ui="enabled: false"> 
               <a-assets>
                   <video id="xrVideo"
                           src="${videoUrl}"
@@ -504,7 +510,7 @@ function setupXRScene(videoUrl) {
                       look-controls="pointerLockEnabled: false;
                                   reverseMouseDrag: false;
                                   touchEnabled: true;
-                                  magicWindowTrackingEnabled: true">
+                                  magicWindowTrackingEnabled: false">
                   </a-camera>
                   <a-cursor></a-cursor>
               </a-entity>
@@ -512,8 +518,11 @@ function setupXRScene(videoUrl) {
               
               <script>
                   const video = document.getElementById('xrVideo');
+                  const camera = document.getElementById('mainCamera');
                   video.muted = true;
                   
+                   // Manual orientation tracking
+                let lastOrientation = { alpha: 0, beta: 0, gamma: 0 };
 
                   // Notify parent when ready
                   function notifyReady() {
@@ -557,6 +566,32 @@ function setupXRScene(videoUrl) {
                               break;
                       }
                   });
+
+                  // Apply orientation to camera
+                function applyOrientation(alpha, beta, gamma) {
+                    if (alpha === null || beta === null || gamma === null) return;
+                    
+                    // Convert device orientation to A-Frame camera rotation
+                    // This is a simplified conversion - you may need to adjust
+                    const alphaRad = THREE.Math.degToRad(alpha || 0);
+                    const betaRad = THREE.Math.degToRad(beta || 0);
+                    const gammaRad = THREE.Math.degToRad(gamma || 0);
+                    
+                    // Create quaternion from device orientation
+                    const zee = new THREE.Vector3(0, 0, 1);
+                    const euler = new THREE.Euler();
+                    const q0 = new THREE.Quaternion();
+                    const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+                    
+                    euler.set(betaRad, alphaRad, -gammaRad, 'YXZ');
+                    q0.setFromEuler(euler);
+                    q0.multiply(q1);
+                    
+                    // Apply to camera
+                    if (camera && camera.object3D) {
+                        camera.object3D.quaternion.copy(q0);
+                    }
+                }
               </script>
           </a-scene>
       </body>
@@ -955,6 +990,9 @@ function requestDeviceOrientation() {
         if (permissionState === 'granted') {
           localStorage.setItem('hasRequestedMotionPermissions', 'true');
           elements.permissionOverlay.style.display = 'none';
+
+           // START LISTENING TO ORIENTATION
+          startOrientationTracking();
           
           // Also request motion permission if available
           if (typeof DeviceMotionEvent !== 'undefined' && 
@@ -968,7 +1006,34 @@ function requestDeviceOrientation() {
     // Non-iOS or older browser
     localStorage.setItem('hasRequestedMotionPermissions', 'true');
     elements.permissionOverlay.style.display = 'none';
+     // START LISTENING TO ORIENTATION
+          startOrientationTracking();
   }
+}
+
+// NEW FUNCTION: Start tracking device orientation
+function startOrientationTracking() {
+    if (orientationState.isTracking) return;
+    
+    orientationState.isTracking = true;
+    
+    window.addEventListener('deviceorientation', (event) => {
+        orientationState.alpha = event.alpha;
+        orientationState.beta = event.beta;
+        orientationState.gamma = event.gamma;
+        
+        // Send to iframe if in XR mode
+        if (state.isXRMode && state.iframeReady) {
+            postMessageToIframe({
+                action: 'updateOrientation',
+                alpha: event.alpha,
+                beta: event.beta,
+                gamma: event.gamma
+            });
+        }
+    });
+    
+    console.log('Orientation tracking started');
 }
 
 function showPermissionFeedback(message) {
