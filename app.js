@@ -479,6 +479,66 @@ function setupXRScene(videoUrl) {
           <style>body { margin: 0; overflow: hidden; }</style>
       </head>
       <body>
+
+      <script>
+      // Add this to your iframe's script section, BEFORE A-Frame initializes
+
+async function requestOrientationPermission() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && 
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    
+    try {
+      const permissionState = await DeviceOrientationEvent.requestPermission();
+      
+      if (permissionState === 'granted') {
+        console.log('Orientation permission granted in iframe');
+        return true;
+      } else {
+        console.log('Orientation permission denied');
+        alert('Please enable device orientation to look around');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error requesting orientation permission:', error);
+      return false;
+    }
+  } else {
+    // Not iOS or permission not needed
+    console.log('No permission request needed');
+    return true;
+  }
+}
+
+// Must be triggered by user gesture
+document.addEventListener('click', async function initOrientation(e) {
+  // Remove listener after first click
+  document.removeEventListener('click', initOrientation);
+  
+  const granted = await requestOrientationPermission();
+  
+  if (granted) {
+    // Test if orientation is now working
+    setTimeout(() => {
+      let working = false;
+      const testHandler = (event) => {
+        if (event.alpha !== null) working = true;
+      };
+      
+      window.addEventListener('deviceorientation', testHandler);
+      
+      setTimeout(() => {
+        window.removeEventListener('deviceorientation', testHandler);
+        if (!working) {
+          alert('Orientation still not working after permission granted');
+        } else {
+          console.log('Orientation working!');
+        }
+      }, 1000);
+    }, 500);
+  }
+}, { once: true });
+
+</script>
           <a-scene device-orientation-permission-ui="enabled: true"
                     vr-mode-ui="enabled: false"> 
               <a-assets>
@@ -512,58 +572,7 @@ function setupXRScene(videoUrl) {
               <script>
                   const video = document.getElementById('xrVideo');
                   video.muted = true;
-
-                  (function() {
-  const isIOS26 = /iPhone OS 26|iOS 26/.test(navigator.userAgent);
-  if (!isIOS26) return;
-  
-  console.log('Applying iOS 26.1 orientation fix');
-  
-  // Wait for scene to load
-  setTimeout(() => {
-    const camera = document.querySelector('a-camera');
-    if (!camera) return;
-    
-    // Check if we're getting orientation events
-    let gotOrientation = false;
-    const testListener = () => { gotOrientation = true; };
-    window.addEventListener('deviceorientation', testListener, { once: true });
-    
-    setTimeout(() => {
-      if (!gotOrientation) {
-        // Not getting events - need to request permission
-        camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', false);
-        
-        // Show mini prompt
-        const prompt = document.createElement('div');
-        prompt.innerHTML = "
-          <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-                     background:rgba(0,0,0,0.8); color:white; padding:10px 20px; border-radius:20px;
-                     z-index:1000; font-size:14px; text-align:center;">
-            <div>Tap to enable motion controls</div>
-            <button style="margin-top:5px; background:#007AFF; color:white; border:none;
-                          padding:8px 16px; border-radius:10px; font-size:14px;">
-              Enable
-            </button>
-          </div>
-        ";
-        document.body.appendChild(prompt);
-        
-        prompt.querySelector('button').onclick = () => {
-          if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-              .then(state => {
-                prompt.remove();
-                if (state === 'granted') {
-                  camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', true);
-                }
-              });
-          }
-        };
-      }
-    }, 2000);
-  }, 1000);
-})();
+                  
 
                   // Notify parent when ready
                   function notifyReady() {
