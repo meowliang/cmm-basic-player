@@ -517,6 +517,17 @@ function setupXRScene(videoUrl) {
 
               
               <script>
+              document.addEventListener('click', async function testPermission() {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const permission = await DeviceOrientationEvent.requestPermission();
+        alert('Iframe permission:', permission);
+        
+        window.addEventListener('deviceorientation', (e) => {
+            console.log('Iframe orientation:', e.alpha, e.beta, e.gamma);
+        });
+    }
+}, { once: true });
+
                   const video = document.getElementById('xrVideo');
                   const camera = document.getElementById('mainCamera');
                   video.muted = true;
