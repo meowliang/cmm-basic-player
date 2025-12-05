@@ -512,7 +512,17 @@ function setupXRScene(videoUrl) {
               <script>
                   const video = document.getElementById('xrVideo');
 
+                  let orientationWorking = false;
 
+window.addEventListener('deviceorientation', (event) => {
+  if (event.alpha !== null) orientationWorking = true;
+});
+
+setTimeout(() => {
+  if (!orientationWorking) {
+    alert('orientation not working');
+  }
+}, 2000);
                   
                   
                   // Notify parent when ready
