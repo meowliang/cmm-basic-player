@@ -509,249 +509,104 @@ function setupXRScene(videoUrl) {
               </a-entity>
 
               
-<script>
-  const video = document.getElementById('xrVideo');
-  video.muted = true;
+              <script>
+                  const video = document.getElementById('xrVideo');
+                  video.muted = true;
 
-  // Enhanced sync function
-  function syncVideo(time) {
-    if (Math.abs(video.currentTime - time) > 0.1) {
-      video.currentTime = time;
-    }
-  }
-
-  // Notify parent when ready
-  function notifyReady() {
-    window.parent.postMessage({ 
-      type: 'aframeReady'
-    }, '*');
-  }
-
-  // Handle metadata loaded
-  video.addEventListener('loadedmetadata', function() {
-    notifyReady();
-  });
-
-  // Handle video ended
-  video.addEventListener('ended', () => {
-    window.parent.postMessage({
-      type: 'videoEnded'
-    }, '*');
-  });
+                  (function() {
+  const isIOS26 = /iPhone OS 26|iOS 26/.test(navigator.userAgent);
+  if (!isIOS26) return;
   
-  // CRITICAL: iOS 26.1 Device Orientation Fix
-  function setupIOS26OrientationFix() {
-    const isIOS26 = /iPhone OS 26|iOS 26/.test(navigator.userAgent);
-    
-    if (!isIOS26) {
-      console.log('Not iOS 26.1, using normal flow');
-      return; // Skip for non-iOS 26.1
-    }
-    
-    console.log('iOS 26.1 detected - applying orientation fix');
-    
-    // 1. First, disable A-Frame's magic window initially
+  console.log('Applying iOS 26.1 orientation fix');
+  
+  // Wait for scene to load
+  setTimeout(() => {
     const camera = document.querySelector('a-camera');
-    if (camera) {
-      camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', false);
-    }
+    if (!camera) return;
     
-    // 2. Create and show permission overlay
+    // Check if we're getting orientation events
+    let gotOrientation = false;
+    const testListener = () => { gotOrientation = true; };
+    window.addEventListener('deviceorientation', testListener, { once: true });
+    
     setTimeout(() => {
-      const overlay = document.createElement('div');
-      overlay.innerHTML = "
-        <div style="
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0,0,0,0.95);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          z-index: 10000;
-          color: white;
-          text-align: center;
-          padding: 20px;
-          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        ">
-          <h3 style="margin-bottom: 15px; font-size: 1.5rem;">Motion Controls Required</h3>
-          <p style="margin-bottom: 25px; line-height: 1.4; max-width: 300px;">
-            To look around in 360° by moving your device, you need to enable motion controls.
-            <br><br>
-            <small>(This is required for iOS 26.1 and later)</small>
-          </p>
-          <button id="ios26-enable-btn" 
-                  style="
-                    background: #007AFF;
-                    color: white;
-                    border: none;
-                    padding: 15px 30px;
-                    border-radius: 25px;
-                    font-size: 1.1rem;
-                    cursor: pointer;
-                    margin-bottom: 15px;
-                  ">
-            Enable Motion Controls
-          </button>
-          <button id="ios26-skip-btn"
-                  style="
-                    background: transparent;
-                    color: #8E8E93;
-                    border: none;
-                    padding: 10px;
-                    font-size: 1rem;
-                    cursor: pointer;
-                  ">
-            Continue with Touch Only
-          </button>
-        </div>
-      ";
-      document.body.appendChild(overlay);
-      
-      // 3. Handle Enable button
-      document.getElementById('ios26-enable-btn').onclick = () => {
-        if (typeof DeviceOrientationEvent !== 'undefined' && 
-            typeof DeviceOrientationEvent.requestPermission === 'function') {
-          
-          DeviceOrientationEvent.requestPermission()
-            .then(permissionState => {
-              console.log('iOS 26.1 iframe permission:', permissionState);
-              
-              if (permissionState === 'granted') {
-                // Success! Enable magic window
-                if (camera) {
+      if (!gotOrientation) {
+        // Not getting events - need to request permission
+        camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', false);
+        
+        // Show mini prompt
+        const prompt = document.createElement('div');
+        prompt.innerHTML = "
+          <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+                     background:rgba(0,0,0,0.8); color:white; padding:10px 20px; border-radius:20px;
+                     z-index:1000; font-size:14px; text-align:center;">
+            <div>Tap to enable motion controls</div>
+            <button style="margin-top:5px; background:#007AFF; color:white; border:none;
+                          padding:8px 16px; border-radius:10px; font-size:14px;">
+              Enable
+            </button>
+          </div>
+        ";
+        document.body.appendChild(prompt);
+        
+        prompt.querySelector('button').onclick = () => {
+          if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+              .then(state => {
+                prompt.remove();
+                if (state === 'granted') {
                   camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', true);
                 }
-                overlay.remove();
-                
-                // Test that it's working
-                setTimeout(() => {
-                  let gotEvent = false;
-                  const testListener = () => { gotEvent = true; };
-                  window.addEventListener('deviceorientation', testListener, { once: true });
-                  
-                  setTimeout(() => {
-                    if (!gotEvent) {
-                      alert('Motion enabled! Move your device to look around.');
-                    }
-                  }, 500);
-                }, 100);
-                
-              } else {
-                // Permission denied
-                alert('Motion controls were denied. You can still use touch to look around.');
-                if (camera) {
-                  camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', false);
-                }
-                overlay.remove();
-              }
-            })
-            .catch(error => {
-              console.error('iOS 26.1 permission error:', error);
-              overlay.remove();
-            });
-        } else {
-          // Shouldn't happen on iOS 26.1, but just in case
-          console.log('No permission API available');
-          overlay.remove();
-        }
-      };
-      
-      // 4. Handle Skip button
-      document.getElementById('ios26-skip-btn').onclick = () => {
-        if (camera) {
-          camera.setAttribute('look-controls', 'magicWindowTrackingEnabled', false);
-        }
-        overlay.remove();
-      };
-      
-    }, 1000); // Show after 1 second
-  }
-  
-  // 5. Run the fix
-  setupIOS26OrientationFix();
-  
-  // 6. Handle parent messages (KEEP YOUR EXISTING CODE BELOW)
-  window.addEventListener('message', (event) => {
-    if (!video) return;
-    
-    switch(event.data.action) {
-      case 'play':
-        syncVideo(event.data.time || 0);
-        video.play().catch(e => console.log('Video play error:', e));
-        break;
-      case 'pause':
-        video.pause();
-        break;
-      case 'setTime':
-        syncVideo(event.data.time);
-        break;
-      case 'getCurrentTime':
-        window.parent.postMessage({
-          type: 'currentTime',
-          time: video.currentTime
-        }, '*');
-        break;
-    }
-  });
+              });
+          }
+        };
+      }
+    }, 2000);
+  }, 1000);
+})();
 
-  // If already loaded, notify immediately
-  if (video.readyState > 3) {
-    notifyReady();
-  }
-</script>
-              
-              <script>
-
-              
-                  // const video = document.getElementById('xrVideo');
-
-
-                  // // Notify parent when ready
-                  // function notifyReady() {
-                  //     if (window.parent.state && window.parent.state.exitingXR) return;
-                  //     window.parent.postMessage({ 
-                  //         type: 'videoReady',
-                  //         duration: video.duration
-                  //     }, '*');
-                  // }
+                  // Notify parent when ready
+                  function notifyReady() {
+                      if (window.parent.state && window.parent.state.exitingXR) return;
+                      window.parent.postMessage({ 
+                          type: 'videoReady',
+                          duration: video.duration
+                      }, '*');
+                  }
                   
-                  // video.addEventListener('canplaythrough', notifyReady);
-                  // if (video.readyState > 3) notifyReady();
+                  video.addEventListener('canplaythrough', notifyReady);
+                  if (video.readyState > 3) notifyReady();
                   
-                  // // Handle video ended event
-                  // video.addEventListener('ended', () => {
-                  //     window.parent.postMessage({
-                  //         type: 'videoEnded'
-                  //     }, '*');
-                  // });
+                  // Handle video ended event
+                  video.addEventListener('ended', () => {
+                      window.parent.postMessage({
+                          type: 'videoEnded'
+                      }, '*');
+                  });
                   
-                  // // Handle parent messages
-                  // window.addEventListener('message', (event) => {
-                  //     if (!video) return;
+                  // Handle parent messages
+                  window.addEventListener('message', (event) => {
+                      if (!video) return;
                       
-                  //     switch(event.data.action) {
-                  //         case 'play':
-                  //             video.currentTime = event.data.time || 0;
-                  //             video.play().catch(e => console.log('Video play error:', e));
-                  //             break;
-                  //         case 'pause':
-                  //             video.pause();
-                  //             break;
-                  //         case 'setTime':
-                  //             video.currentTime = event.data.time;
-                  //             break;
-                  //         case 'getCurrentTime':
-                  //             window.parent.postMessage({
-                  //                 type: 'currentTime',
-                  //                 time: video.currentTime
-                  //             }, '*');
-                  //             break;
-                  //     }
-                  // });
+                      switch(event.data.action) {
+                          case 'play':
+                              video.currentTime = event.data.time || 0;
+                              video.play().catch(e => console.log('Video play error:', e));
+                              break;
+                          case 'pause':
+                              video.pause();
+                              break;
+                          case 'setTime':
+                              video.currentTime = event.data.time;
+                              break;
+                          case 'getCurrentTime':
+                              window.parent.postMessage({
+                                  type: 'currentTime',
+                                  time: video.currentTime
+                              }, '*');
+                              break;
+                      }
+                  });
               </script>
           </a-scene>
       </body>
