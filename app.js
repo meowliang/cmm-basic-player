@@ -63,6 +63,7 @@ window.dataLayer.push({
 });
 
       setupEventListeners();
+      injectNoticeStyles();
       populatePlaylist();
       setupAudioElement();
       checkDeviceOrientation();
@@ -395,6 +396,11 @@ async function enterXRMode() {
       elements.xrContent.style.display = 'block';
       elements.viewXRBtn.style.display = 'none';
       elements.exitXRBtn.style.display = 'flex';
+
+      // *** ADD THIS: Show touch controls notice for iOS 26.1+ ***
+        if (isIOS26Plus()) {
+            setTimeout(() => showTouchControlsNotice(), 1000);
+        }
 
           // Store playback state
     const wasPlaying = !elements.audioElement.paused;
@@ -1159,6 +1165,144 @@ function showPermissionFeedback(message) {
     setTimeout(() => feedback.remove(), 500);
   }, 3000);
 }
+
+// Detect iOS 26.1+
+function isIOS26Plus() {
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (!isIOS) return false;
+    
+    const match = navigator.userAgent.match(/OS (\d+)_/);
+    const version = match ? parseInt(match[1]) : 0;
+    return version >= 26;
+}
+
+// Show touch controls notice in XR mode
+function showTouchControlsNotice() {
+    // Remove any existing notice
+    const existingNotice = document.getElementById('touch-controls-notice');
+    if (existingNotice) existingNotice.remove();
+    
+    const notice = document.createElement('div');
+    notice.id = 'touch-controls-notice';
+    notice.innerHTML = `
+        <div class="notice-content">
+            <div class="notice-icon">👆</div>
+            <div class="notice-text">
+                <strong>Touch & Drag to Look Around</strong>
+                <p>Gyroscope controls currently unavailable on iOS 26.1</p>
+            </div>
+            <button class="notice-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    notice.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;
+        background: --var(creme);
+        color: --var(navy);
+        padding: 12px 20px;
+        border-radius: 12px;
+        max-width: 90%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        animation: slideDown 0.3s ease-out;
+        backdrop-filter: blur(10px);
+    `;
+    
+    document.body.appendChild(notice);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        if (notice.parentElement) {
+            notice.style.animation = 'slideUp 0.3s ease-out';
+            setTimeout(() => notice.remove(), 300);
+        }
+    }, 5000);
+}
+
+function injectNoticeStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+        
+        #touch-controls-notice .notice-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        #touch-controls-notice .notice-icon {
+            font-size: 2rem;
+            animation: pointDown 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pointDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+        
+        #touch-controls-notice .notice-text {
+            flex: 1;
+            text-align: left;
+        }
+        
+        #touch-controls-notice .notice-text strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        
+        #touch-controls-notice .notice-text p {
+            margin: 0;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            color: white;
+        }
+        
+        #touch-controls-notice .notice-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+        }
+        
+        #touch-controls-notice .notice-close:hover {
+            opacity: 1;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initializePlayer);
