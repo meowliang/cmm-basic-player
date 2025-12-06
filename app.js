@@ -462,230 +462,156 @@ function completeExitXRMode(videoTime) {
 function setupXRScene(videoUrl) {
   // Clear previous iframe
   elements.xrContent.innerHTML = '';
-
-  // Create A-Frame scene directly in the DOM (no iframe!)
-    const sceneContainer = document.createElement('div');
-    sceneContainer.id = 'aframe-container';
-    sceneContainer.style.width = '100%';
-    sceneContainer.style.height = '100%';
-    sceneContainer.style.position = 'absolute';
-    sceneContainer.style.top = '0';
-    sceneContainer.style.left = '0';
-    
-    elements.xrContent.appendChild(sceneContainer);
-    
-    // Create A-Frame scene elements
-    const scene = document.createElement('a-scene');
-    scene.setAttribute('embedded', '');
-    scene.setAttribute('device-orientation-permission-ui', 'enabled: true');
-    scene.setAttribute('vr-mode-ui', 'enabled: false');
-    
-    // Create assets
-    const assets = document.createElement('a-assets');
-    const video = document.createElement('video');
-    video.id = 'xrVideo';
-    video.src = videoUrl;
-    video.setAttribute('crossorigin', 'anonymous');
-    video.setAttribute('playsinline', '');
-    video.setAttribute('webkit-playsinline', '');
-    video.muted = true;
-    video.autoplay = true;
-    video.preload = 'auto';
-    
-    assets.appendChild(video);
-    scene.appendChild(assets);
-    
-    // Create videosphere
-    const videosphere = document.createElement('a-videosphere');
-    videosphere.setAttribute('src', '#xrVideo');
-    videosphere.setAttribute('rotation', '0 -90 0');
-    scene.appendChild(videosphere);
-    
-    // Create camera
-    const cameraRig = document.createElement('a-entity');
-    cameraRig.setAttribute('position', '0 1.6 0');
-    
-    const camera = document.createElement('a-camera');
-    camera.id = 'mainCamera';
-    camera.setAttribute('look-controls', 
-        'pointerLockEnabled: false; ' +
-        'reverseMouseDrag: false; ' +
-        'touchEnabled: true; ' +
-        'magicWindowTrackingEnabled: true');
-    
-    const cursor = document.createElement('a-cursor');
-    
-    cameraRig.appendChild(camera);
-    cameraRig.appendChild(cursor);
-    scene.appendChild(cameraRig);
-    
-    sceneContainer.appendChild(scene);
-    
-    // Handle video events
-    video.addEventListener('canplaythrough', () => {
-        video.currentTime = elements.audioElement.currentTime;
-        if (state.isPlaying) {
-            video.play().catch(console.error);
-        }
-    });
-    
-    video.addEventListener('ended', () => {
-        elements.audioElement.currentTime = 0;
-        playNextTrack();
-    });
-    
-    // Store video reference for syncing
-    state.videoElement = video;
   
-//   // Create new iframe
-//   const iframe = document.createElement('iframe');
-//   iframe.className = 'video-frame';
-//   iframe.allowFullscreen = true;
-//   elements.xrContent.appendChild(iframe);
+  // Create new iframe
+  const iframe = document.createElement('iframe');
+  iframe.className = 'video-frame';
+  iframe.allowFullscreen = true;
+  elements.xrContent.appendChild(iframe);
   
-//   // Set up load handler
-//   iframe.onload = () => {
-//       state.iframeReady = true;
-//       console.log('XR iframe loaded');
-//   };
+  // Set up load handler
+  iframe.onload = () => {
+      state.iframeReady = true;
+      console.log('XR iframe loaded');
+  };
 
-//   const aframeHTML = `
-//       <!DOCTYPE html>
-//       <html>
-//       <head>
-//       <meta name="apple-mobile-web-app-capable" content="yes">
-//       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-//           <title>360 Video</title>
-//           <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-//           <style>body { margin: 0; overflow: hidden; }</style>
-//       </head>
-//       <body>
+  const aframeHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+          <title>360 Video</title>
+          <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+          <style>body { margin: 0; overflow: hidden; }</style>
+      </head>
+      <body>
 
-//           <a-scene vr-mode-ui="enabled: false"> 
-//               <a-assets>
-//                   <video id="xrVideo"
-//                           src="${videoUrl}"
-//                          crossorigin="anonymous"
-//                          playsinline
-//                          webkit-playsinline
-//                          muted
-//                          autoplay
-//                          preload="auto"
-//                          xr-layer>
-//                   </video>
-//               </a-assets>
+          <a-scene vr-mode-ui="enabled: false"> 
+              <a-assets>
+                  <video id="xrVideo"
+                          src="${videoUrl}"
+                         crossorigin="anonymous"
+                         playsinline
+                         webkit-playsinline
+                         muted
+                         autoplay
+                         preload="auto"
+                         xr-layer>
+                  </video>
+              </a-assets>
               
-//               <a-videosphere src="#xrVideo" rotation="0 -90 0"></a-videosphere>
+              <a-videosphere src="#xrVideo" rotation="0 -90 0"></a-videosphere>
             
       
-//                <!-- Camera setup for natural movement -->
-//               <a-entity position="0 1.6 0">
-//                   <a-camera
-//                       look-controls="pointerLockEnabled: false;
-//                                   reverseMouseDrag: false;
-//                                   touchEnabled: true;
-//                                   magicWindowTrackingEnabled: false">
-//                   </a-camera>
-//                   <a-cursor></a-cursor>
-//               </a-entity>
+               <!-- Camera setup for natural movement -->
+              <a-entity position="0 1.6 0">
+                  <a-camera
+                      look-controls="pointerLockEnabled: false;
+                                  reverseMouseDrag: false;
+                                  touchEnabled: true;
+                                  magicWindowTrackingEnabled: false">
+                  </a-camera>
+                  <a-cursor></a-cursor>
+              </a-entity>
 
               
-//               <script>
-//               document.addEventListener('click', async function testPermission() {
-//     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-//         const permission = await DeviceOrientationEvent.requestPermission();
-//         alert('Iframe permission:', permission);
+              <script>
+              document.addEventListener('click', async function testPermission() {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const permission = await DeviceOrientationEvent.requestPermission();
+        alert('Iframe permission:', permission);
         
-//         window.addEventListener('deviceorientation', (e) => {
-//             console.log('Iframe orientation:', e.alpha, e.beta, e.gamma);
-//         });
-//     }
-// }, { once: true });
+        window.addEventListener('deviceorientation', (e) => {
+            console.log('Iframe orientation:', e.alpha, e.beta, e.gamma);
+        });
+    }
+}, { once: true });
 
-//                   const video = document.getElementById('xrVideo');
-//                   const camera = document.getElementById('mainCamera');
-//                   video.muted = true;
+                  const video = document.getElementById('xrVideo');
+                  const camera = document.getElementById('mainCamera');
+                  video.muted = true;
                   
-//                    // Manual orientation tracking
-//                 let lastOrientation = { alpha: 0, beta: 0, gamma: 0 };
+                   // Manual orientation tracking
+                let lastOrientation = { alpha: 0, beta: 0, gamma: 0 };
 
-//                   // Notify parent when ready
-//                   function notifyReady() {
-//                       if (window.parent.state && window.parent.state.exitingXR) return;
-//                       window.parent.postMessage({ 
-//                           type: 'videoReady',
-//                           duration: video.duration
-//                       }, '*');
-//                   }
+                  // Notify parent when ready
+                  function notifyReady() {
+                      if (window.parent.state && window.parent.state.exitingXR) return;
+                      window.parent.postMessage({ 
+                          type: 'videoReady',
+                          duration: video.duration
+                      }, '*');
+                  }
                   
-//                   video.addEventListener('canplaythrough', notifyReady);
-//                   if (video.readyState > 3) notifyReady();
+                  video.addEventListener('canplaythrough', notifyReady);
+                  if (video.readyState > 3) notifyReady();
                   
-//                   // Handle video ended event
-//                   video.addEventListener('ended', () => {
-//                       window.parent.postMessage({
-//                           type: 'videoEnded'
-//                       }, '*');
-//                   });
+                  // Handle video ended event
+                  video.addEventListener('ended', () => {
+                      window.parent.postMessage({
+                          type: 'videoEnded'
+                      }, '*');
+                  });
                   
-//                   // Handle parent messages
-//                   window.addEventListener('message', (event) => {
-//                       if (!video) return;
+                  // Handle parent messages
+                  window.addEventListener('message', (event) => {
+                      if (!video) return;
                       
-//                       switch(event.data.action) {
-//                           case 'play':
-//                               video.currentTime = event.data.time || 0;
-//                               video.play().catch(e => console.log('Video play error:', e));
-//                               break;
-//                           case 'pause':
-//                               video.pause();
-//                               break;
-//                           case 'setTime':
-//                               video.currentTime = event.data.time;
-//                               break;
-//                           case 'getCurrentTime':
-//                               window.parent.postMessage({
-//                                   type: 'currentTime',
-//                                   time: video.currentTime
-//                               }, '*');
-//                               break;
-//                       }
-//                   });
+                      switch(event.data.action) {
+                          case 'play':
+                              video.currentTime = event.data.time || 0;
+                              video.play().catch(e => console.log('Video play error:', e));
+                              break;
+                          case 'pause':
+                              video.pause();
+                              break;
+                          case 'setTime':
+                              video.currentTime = event.data.time;
+                              break;
+                          case 'getCurrentTime':
+                              window.parent.postMessage({
+                                  type: 'currentTime',
+                                  time: video.currentTime
+                              }, '*');
+                              break;
+                      }
+                  });
 
-//                   // Apply orientation to camera
-//                 function applyOrientation(alpha, beta, gamma) {
-//                     if (alpha === null || beta === null || gamma === null) return;
+                  // Apply orientation to camera
+                function applyOrientation(alpha, beta, gamma) {
+                    if (alpha === null || beta === null || gamma === null) return;
                     
-//                     // Convert device orientation to A-Frame camera rotation
-//                     // This is a simplified conversion - you may need to adjust
-//                     const alphaRad = THREE.Math.degToRad(alpha || 0);
-//                     const betaRad = THREE.Math.degToRad(beta || 0);
-//                     const gammaRad = THREE.Math.degToRad(gamma || 0);
+                    // Convert device orientation to A-Frame camera rotation
+                    // This is a simplified conversion - you may need to adjust
+                    const alphaRad = THREE.Math.degToRad(alpha || 0);
+                    const betaRad = THREE.Math.degToRad(beta || 0);
+                    const gammaRad = THREE.Math.degToRad(gamma || 0);
                     
-//                     // Create quaternion from device orientation
-//                     const zee = new THREE.Vector3(0, 0, 1);
-//                     const euler = new THREE.Euler();
-//                     const q0 = new THREE.Quaternion();
-//                     const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+                    // Create quaternion from device orientation
+                    const zee = new THREE.Vector3(0, 0, 1);
+                    const euler = new THREE.Euler();
+                    const q0 = new THREE.Quaternion();
+                    const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
                     
-//                     euler.set(betaRad, alphaRad, -gammaRad, 'YXZ');
-//                     q0.setFromEuler(euler);
-//                     q0.multiply(q1);
+                    euler.set(betaRad, alphaRad, -gammaRad, 'YXZ');
+                    q0.setFromEuler(euler);
+                    q0.multiply(q1);
                     
-//                     // Apply to camera
-//                     if (camera && camera.object3D) {
-//                         camera.object3D.quaternion.copy(q0);
-//                     }
-//                 }
-//               </script>
-//           </a-scene>
-//       </body>
-//       </html>
-//   `;
+                    // Apply to camera
+                    if (camera && camera.object3D) {
+                        camera.object3D.quaternion.copy(q0);
+                    }
+                }
+              </script>
+          </a-scene>
+      </body>
+      </html>
+  `;
   
-//   iframe.srcdoc = aframeHTML;
-//   iframe.style.zIndex = '100'; // Ensure iframe stays below buttons
-//   state.iframeReady = false;
+  iframe.srcdoc = aframeHTML;
+  iframe.style.zIndex = '100'; // Ensure iframe stays below buttons
+  state.iframeReady = false;
   
 }
 
